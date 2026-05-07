@@ -573,11 +573,12 @@
   <div class="page active" id="page-leaderboard">
     <div class="lb-hero">
       <div class="badge">🏆 Live Leaderboard</div>
-      <h1 id="lb-platform-name">Shuffle</h1>
-      <div class="lb-subtitle" id="lb-pool-display">Monthly Leaderboard</div>
+      <div id="lb-pool-display">
+        <span style="font-size:48px;font-family:var(--font-head);font-weight:900;color:var(--purple-light);">$15,001.00</span><br>
+        <span style="font-size:16px;color:var(--text-muted);">Monthly Leaderboard</span>
+      </div>
 
-      <div class="tabs" id="platform-tabs"></div>
-      <div class="period-tabs">
+      <div class="period-tabs" style="margin-top:28px;">
         <button class="period-tab active" id="tab-current" onclick="setPeriod('current')">Current Period</button>
         <button class="period-tab" id="tab-previous" onclick="setPeriod('previous')">Last Period</button>
       </div>
@@ -620,10 +621,9 @@
 
 <script>
   // STATE
-  let lbData = null;
   let wmData = null;
-  let currentPlatform = 'shuffle';
   let currentPeriod = 'current';
+  let lbCache = {};   // { current: data, previous: data }
   let countdown = null;
 
   // NAVIGATION
@@ -633,7 +633,7 @@
     document.getElementById('page-' + page).classList.add('active');
     document.getElementById('nav-' + (page === 'leaderboard' ? 'leaderboard' : 'wager')).classList.add('active');
     window.scrollTo(0, 0);
-    if (page === 'leaderboard' && !lbData) loadLeaderboard();
+    if (page === 'leaderboard' && !lbCache[currentPeriod]) loadLeaderboard(currentPeriod);
     if (page === 'wager' && !wmData) loadWagerMilestones();
   }
 
@@ -642,72 +642,57 @@
     return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
   }
 
-  function fmtCurrency(n, sym) {
-    return (sym || '$') + fmt(n);
-  }
-
   // LEADERBOARD
   async function loadLeaderboard(period) {
     period = period || currentPeriod;
     document.getElementById('lb-content').innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Loading leaderboard…</p></div>`;
     try {
-      const r = await fetch('/api/leaderboard?period=' + period);
-      lbData = (await r.json()).data;
+      const r = await fetch(`/api/leaderboard?period=${period}&platform=shuffle`);
+      const json = await r.json();
+      lbCache[period] = json.data;
       currentPeriod = period;
-      renderPlatformTabs();
       renderLeaderboard();
     } catch(e) {
       document.getElementById('lb-content').innerHTML = `<div class="no-data">Failed to load leaderboard data.</div>`;
     }
   }
 
-  function renderPlatformTabs() {
-    if (!lbData) return;
-    const tabs = document.getElementById('platform-tabs');
-    const platforms = lbData.platforms || [];
-    tabs.innerHTML = platforms.map(p => `
-      <button class="tab ${p.slug === currentPlatform ? 'active' : ''}"
-        onclick="selectPlatform('${p.slug}')">
-        ${p.name}
-      </button>
-    `).join('');
-  }
-
-  function selectPlatform(slug) {
-    currentPlatform = slug;
-    renderPlatformTabs();
-    renderLeaderboard();
-  }
-
   function setPeriod(p) {
+    if (p === currentPeriod) return;
     document.getElementById('tab-current').classList.toggle('active', p === 'current');
     document.getElementById('tab-previous').classList.toggle('active', p === 'previous');
-    lbData = null;
-    loadLeaderboard(p);
+    currentPeriod = p;
+    if (lbCache[p]) {
+      renderLeaderboard();
+    } else {
+      loadLeaderboard(p);
+    }
   }
 
   function renderLeaderboard() {
-    if (!lbData) return;
-    const lb = lbData.all_leaderboards[currentPlatform];
+    const data = lbCache[currentPeriod];
+    if (!data) return;
+
+    const lb = data.all_leaderboards['shuffle'];
     if (!lb) return;
 
-    const platform = lb.platform;
     const top3 = lb.top_three || [];
     const rest = lb.rest_of_users || [];
     const prizes = lb.prizes || [];
     const period = lb.current_period || {};
     const sym = lb.currency_symbol || '$';
-    const totalPool = (lbData.platforms || []).find(p => p.slug === currentPlatform)?.active_leaderboard?.total_prize_pool;
+    const totalPool = (data.platforms || []).find(p => p.slug === 'shuffle')?.active_leaderboard?.total_prize_pool;
 
-    // Hero
-    document.getElementById('lb-platform-name').textContent = platform.name;
+    // Update hero prize pool
     if (totalPool) {
-      document.getElementById('lb-pool-display').innerHTML = `<span style="font-size:48px;font-family:var(--font-head);font-weight:900;color:var(--purple-light);">${sym}${Number(totalPool).toLocaleString('en-US', {minimumFractionDigits:2})}</span><br><span style="font-size:16px;color:var(--text-muted);">Monthly Leaderboard</span>`;
+      document.getElementById('lb-pool-display').innerHTML =
+        `<span style="font-size:48px;font-family:var(--font-head);font-weight:900;color:var(--purple-light);">${sym}${Number(totalPool).toLocaleString('en-US',{minimumFractionDigits:2})}</span><br>
+         <span style="font-size:16px;color:var(--text-muted);">Monthly Leaderboard</span>`;
     }
 
-    // Countdown
+    // Countdown (only for current period)
     let countdownHtml = '';
-    if (period.endTimestamp) {
+    if (currentPeriod === 'current' && period.endTimestamp) {
       countdownHtml = `<div class="countdown-wrap" id="countdown-wrap">
         <div class="countdown-unit"><div class="countdown-num" id="cd-d">--</div><div class="countdown-label">Days</div></div>
         <div class="countdown-unit"><div class="countdown-num" id="cd-h">--</div><div class="countdown-label">Hours</div></div>
@@ -718,20 +703,24 @@
 
     // Period info
     const periodHtml = period.start ? `
-      <div class="period-info">Period: <strong>${period.start}</strong> — <strong>${period.end}</strong></div>
-    ` : '';
+      <div class="period-info">Period: <strong>${period.start}</strong> — <strong>${period.end}</strong></div>` : '';
 
-    // Podium
-    const podiumCards = ['rank-1','rank-2','rank-3'].map((cls, i) => {
-      const u = top3[i];
+    // Podium (top 3 — #1 centre, #2 left, #3 right)
+    const podiumOrder = [1, 0, 2]; // index in top3 array
+    const podiumClasses = ['rank-2', 'rank-1', 'rank-3'];
+    const rankClasses = ['r2', 'r1', 'r3'];
+    const rankNums = [2, 1, 3];
+
+    const podiumCards = podiumOrder.map((idx, col) => {
+      const u = top3[idx];
       if (!u) return '';
       const initials = u.displayName ? u.displayName[0].toUpperCase() : '?';
-      const prize = prizes[i];
+      const prize = prizes[idx];
       return `
-        <div class="podium-card ${cls}">
+        <div class="podium-card ${podiumClasses[col]}">
           <div class="avatar-wrap">
             <div class="avatar">${initials}</div>
-            <div class="rank-badge r${i+1}">#${i+1}</div>
+            <div class="rank-badge ${rankClasses[col]}">#${rankNums[col]}</div>
           </div>
           <div class="podium-name">${u.displayName}</div>
           <div class="podium-wagered">${sym}${fmt(u.wagered)}</div>
@@ -741,8 +730,7 @@
     }).join('');
 
     // Table (positions 4+)
-    const allUsers = [...rest];
-    const tableRows = allUsers.map((u, i) => {
+    const tableRows = rest.map((u, i) => {
       const rank = i + 4;
       const prize = prizes[rank - 1];
       return `<tr>
@@ -767,26 +755,23 @@
       <div class="podium">${podiumCards}</div>
       ${tableRows ? `<div class="lb-table-wrap">
         <table>
-          <thead><tr>
-            <th>Rank</th><th>Player</th><th>Wagered</th><th>Prize</th>
-          </tr></thead>
+          <thead><tr><th>Rank</th><th>Player</th><th>Wagered</th><th>Prize</th></tr></thead>
           <tbody>${tableRows}</tbody>
         </table>
       </div>` : ''}
       ${rulesHtml}
     `;
 
-    // Start countdown
-    if (period.endTimestamp) {
-      if (countdown) clearInterval(countdown);
+    // Countdown tick
+    if (countdown) clearInterval(countdown);
+    if (currentPeriod === 'current' && period.endTimestamp) {
       countdown = setInterval(() => updateCountdown(period.endTimestamp), 1000);
       updateCountdown(period.endTimestamp);
     }
   }
 
   function updateCountdown(endTs) {
-    const now = Date.now();
-    const diff = endTs - now;
+    const diff = endTs - Date.now();
     if (diff <= 0) { clearInterval(countdown); return; }
     const d = Math.floor(diff / 86400000);
     const h = Math.floor((diff % 86400000) / 3600000);
