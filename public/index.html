@@ -203,20 +203,30 @@
     /* ── CODE BADGE ── */
     .code-badge {
       display: inline-flex; align-items: center; gap: 8px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.12);
+      background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(236,72,153,0.15));
+      border: 1px solid rgba(139,92,246,0.35);
       border-radius: 50px;
-      padding: 7px 18px;
-      font-size: 13px; color: var(--text-muted);
+      padding: 10px 24px;
+      font-size: 14px; font-weight: 700;
+      color: #fff;
       margin-bottom: 20px;
-      letter-spacing: 0.2px;
+      letter-spacing: 0.3px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.18s;
     }
-    .code-badge strong {
-      color: #fff; font-weight: 700;
+    .code-badge:hover {
+      background: linear-gradient(135deg, rgba(139,92,246,0.28), rgba(236,72,153,0.28));
+      border-color: rgba(139,92,246,0.6);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(139,92,246,0.25);
+    }
+    .code-badge span {
       background: linear-gradient(135deg, #a78bfa, #ec4899);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      font-weight: 900;
     }
 
     /* ── MODAL ── */
@@ -503,7 +513,7 @@
     <div class="hero-platform">Shuffle</div>
     <div class="hero-pool" id="lb-pool-display">$15,001.00</div>
     <div class="hero-label">Monthly Leaderboard</div>
-    <div class="code-badge">Use code <strong>DRIVA</strong> on Shuffle</div>
+    <a class="code-badge" href="https://shuffle.com/?r=DRIVA" target="_blank" rel="noopener">Code <span>DRIVA</span></a>
 
     <div class="pill-row">
       <button class="pill active" id="tab-current" onclick="setPeriod('current')">Current Period</button>
