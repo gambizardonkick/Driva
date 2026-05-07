@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Driva.tv — Leaderboard</title>
+  <link rel="icon" type="image/png" href="/favicon.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet"/>
@@ -469,9 +470,7 @@
 
 <nav>
   <a class="nav-logo" href="#">
-    <div class="nav-logo-icon">
-      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-    </div>
+    <img src="/logo.png" alt="Driva.tv" style="height:36px;width:auto;"/>
     <div class="nav-logo-text">Driva<span>.tv</span></div>
   </a>
   <a class="nav-play-btn" href="https://shuffle.com/?r=DRIVA" target="_blank" rel="noopener">Play Now</a>
@@ -616,7 +615,7 @@
     // Rules
     const rules = lb.rules || [];
     const rulesHtml = rules.length
-      ? `<div class="rules-box"><h3>Rules</h3><ul>${rules.map(r => `<li>${r}</li>`).join('')}</ul></div>`
+      ? `<div class="rules-box"><h3>Rules</h3><ul>${rules.map(r => `<li>${r.replace(/\bROMIX\b/gi, 'DRIVA')}</li>`).join('')}</ul></div>`
       : '';
 
     document.getElementById('lb-content').innerHTML = `

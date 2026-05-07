@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "ppMenETjeN5BES_dqeE5m"
+uri = "file://public/logo.png"
+type = "image"
+title = "driva logo"
