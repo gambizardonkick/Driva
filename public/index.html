@@ -130,21 +130,6 @@
     }
     .nav-logo-text span { color: var(--purple-light); }
 
-    .nav-play-btn {
-      background: linear-gradient(135deg, var(--purple) 0%, #a21caf 100%);
-      color: #fff;
-      border: none; border-radius: 9px;
-      padding: 9px 22px;
-      font-size: 13px; font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0 4px 18px rgba(139,92,246,0.4);
-      text-decoration: none; letter-spacing: 0.2px;
-    }
-    .nav-play-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 28px rgba(139,92,246,0.6);
-    }
 
     /* ── LAYOUT ── */
     main {
@@ -215,19 +200,65 @@
       box-shadow: 0 4px 18px rgba(139,92,246,0.45);
     }
 
-    .play-pill {
-      padding: 9px 24px;
+    /* ── CODE BADGE ── */
+    .code-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
       border-radius: 50px;
-      font-size: 13px; font-weight: 700;
-      cursor: pointer;
-      border: none;
-      background: linear-gradient(135deg, var(--purple) 0%, #a21caf 100%);
-      color: #fff;
-      transition: all 0.18s;
-      text-decoration: none;
-      box-shadow: 0 4px 18px rgba(139,92,246,0.35);
+      padding: 7px 18px;
+      font-size: 13px; color: var(--text-muted);
+      margin-bottom: 20px;
+      letter-spacing: 0.2px;
     }
-    .play-pill:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(139,92,246,0.55); }
+    .code-badge strong {
+      color: #fff; font-weight: 700;
+      background: linear-gradient(135deg, #a78bfa, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px);
+      align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #0f0f1c;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 32px;
+      max-width: 480px; width: 100%;
+      position: relative;
+    }
+    .modal h2 {
+      font-family: var(--font-head);
+      font-size: 20px; font-weight: 800;
+      margin-bottom: 20px;
+      color: var(--purple-light);
+    }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      background: rgba(255,255,255,0.07);
+      border: none; border-radius: 8px;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-muted); font-size: 18px;
+      transition: background 0.15s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.13); color: #fff; }
+    .modal ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .modal li {
+      font-size: 14px; color: var(--text-muted);
+      padding-left: 18px; position: relative; line-height: 1.6;
+    }
+    .modal li::before { content: '·'; position: absolute; left: 0; color: var(--purple); font-size: 20px; line-height: 1; }
 
     /* ── CONTAINER ── */
     .lb-container { max-width: 980px; margin: 0 auto; padding: 0 20px 80px; }
@@ -456,19 +487,28 @@
   <a class="nav-logo" href="#">
     <div class="nav-logo-text">Driva<span>.tv</span></div>
   </a>
-  <a class="nav-play-btn" href="https://shuffle.com/?r=DRIVA" target="_blank" rel="noopener">Play Now</a>
 </nav>
+
+<!-- Rules Modal -->
+<div class="modal-overlay" id="rules-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>Rules</h2>
+    <ul id="modal-rules-list"></ul>
+  </div>
+</div>
 
 <main>
   <div class="lb-hero">
     <div class="hero-platform">Shuffle</div>
     <div class="hero-pool" id="lb-pool-display">$15,001.00</div>
     <div class="hero-label">Monthly Leaderboard</div>
+    <div class="code-badge">Use code <strong>DRIVA</strong> on Shuffle</div>
 
     <div class="pill-row">
       <button class="pill active" id="tab-current" onclick="setPeriod('current')">Current Period</button>
       <button class="pill" id="tab-previous" onclick="setPeriod('previous')">Last Period</button>
-      <a class="play-pill" href="https://shuffle.com/?r=DRIVA" target="_blank" rel="noopener">Play Now</a>
+      <button class="pill" onclick="openModal()">Rules</button>
     </div>
   </div>
 
@@ -592,11 +632,12 @@
       </tr>`;
     }).join('');
 
-    // Rules
+    // Rules → populate modal
     const rules = lb.rules || [];
-    const rulesHtml = rules.length
-      ? `<div class="rules-box"><h3>Rules</h3><ul>${rules.map(r => `<li>${r.replace(/\bROMIX\b/gi, 'DRIVA')}</li>`).join('')}</ul></div>`
-      : '';
+    const rulesList = document.getElementById('modal-rules-list');
+    if (rulesList) {
+      rulesList.innerHTML = rules.map(r => `<li>${r.replace(/\bROMIX\b/gi, 'DRIVA')}</li>`).join('');
+    }
 
     document.getElementById('lb-content').innerHTML = `
       ${countdownHtml}
@@ -608,7 +649,6 @@
           <tbody>${tableRows}</tbody>
         </table>
       </div>` : ''}
-      ${rulesHtml}
     `;
 
     if (countdown) clearInterval(countdown);
@@ -634,6 +674,18 @@
       el('cd-s').textContent = pad(s);
     }
   }
+
+  function openModal() {
+    document.getElementById('rules-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('rules-modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
   loadLeaderboard('current');
 </script>
