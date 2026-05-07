@@ -1,186 +1,207 @@
 const express = require('express');
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+const path = require('path');
+const zlib = require('zlib');
 
 const app = express();
 const TARGET = 'https://romix.tv';
+const TARGET_HOST = 'romix.tv';
 
-const BLOCKED_HEADERS = [
+const STRIP_RES_HEADERS = new Set([
   'x-frame-options',
   'content-security-policy',
   'content-security-policy-report-only',
-  'x-content-type-options',
   'strict-transport-security',
   'x-xss-protection',
-];
+  'transfer-encoding',
+  'content-encoding',
+  'content-length',
+]);
 
-function rewriteUrls(html, base) {
-  return html
-    .replace(/(href|src|action)=["'](\/[^"']*?)["']/g, (_, attr, path) => `${attr}="/proxy${path}"`)
-    .replace(/(href|src|action)=["'](https?:\/\/(?:romix\.tv|www\.romix\.tv)[^"']*?)["']/g, (_, attr, url) => {
-      const path = url.replace(/^https?:\/\/(?:www\.)?romix\.tv/, '');
-      return `${attr}="/proxy${path || '/'}"`;
-    })
-    .replace(/url\(["']?(\/[^"')]+)["']?\)/g, (_, path) => `url(/proxy${path})`)
-    .replace(/url\(["']?(https?:\/\/(?:romix\.tv|www\.romix\.tv)[^"')]+)["']?\)/g, (_, url) => {
-      const path = url.replace(/^https?:\/\/(?:www\.)?romix\.tv/, '');
-      return `url(/proxy${path || '/'})`;
-    });
+const NAV_INJECT = `
+<style>
+#driva-nav{
+  position:fixed;top:0;left:0;right:0;height:50px;
+  background:#111;border-bottom:1px solid #1e1e1e;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;z-index:999999;font-family:'Segoe UI',sans-serif;
+}
+#driva-nav .dn-logo{display:flex;align-items:center;gap:9px;text-decoration:none;cursor:pointer}
+#driva-nav .dn-icon{width:30px;height:30px;background:linear-gradient(135deg,#e63946,#c1121f);border-radius:7px;display:flex;align-items:center;justify-content:center}
+#driva-nav .dn-icon svg{width:16px;height:16px;fill:#fff}
+#driva-nav .dn-wordmark{font-size:19px;font-weight:700;color:#fff;letter-spacing:.2px}
+#driva-nav .dn-wordmark em{font-style:normal;color:#e63946}
+#driva-nav .dn-links{display:flex;gap:24px;list-style:none}
+#driva-nav .dn-links a{color:#aaa;text-decoration:none;font-size:13px;font-weight:500;cursor:pointer;transition:color .15s}
+#driva-nav .dn-links a:hover{color:#fff}
+#driva-nav .dn-btn{background:#e63946;color:#fff;border:none;padding:7px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;transition:background .15s}
+#driva-nav .dn-btn:hover{background:#c1121f}
+body{padding-top:50px!important}
+@media(max-width:600px){#driva-nav .dn-links{display:none}#driva-nav{padding:0 14px}}
+</style>
+<div id="driva-nav">
+  <a class="dn-logo" href="/">
+    <div class="dn-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+    <div class="dn-wordmark">Driva<em>.tv</em></div>
+  </a>
+  <ul class="dn-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/stream">Stream</a></li>
+    <li><a href="/leaderboard">Leaderboard</a></li>
+    <li><a href="/store">Store</a></li>
+  </ul>
+  <a class="dn-btn" href="/">Watch Now</a>
+</div>
+`;
+
+const INTERCEPT_SCRIPT = `
+<script>
+(function(){
+  var T='https://romix.tv';
+  var W='https://www.romix.tv';
+  function rw(u){
+    if(!u||typeof u!=='string') return u;
+    if(u.startsWith(T)) return u.slice(T.length)||'/';
+    if(u.startsWith(W)) return u.slice(W.length)||'/';
+    return u;
+  }
+  var oFetch=window.fetch;
+  window.fetch=function(input,init){
+    if(typeof input==='string') input=rw(input);
+    else if(input instanceof Request){
+      var url=rw(input.url);
+      if(url!==input.url) input=new Request(url,input);
+    }
+    return oFetch.call(this,input,init);
+  };
+  var oOpen=XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open=function(m,u){
+    arguments[1]=rw(u);
+    return oOpen.apply(this,arguments);
+  };
+  var oPush=history.pushState;
+  history.pushState=function(s,t,u){ return oPush.call(this,s,t,rw(u)||u); };
+  var oReplace=history.replaceState;
+  history.replaceState=function(s,t,u){ return oReplace.call(this,s,t,rw(u)||u); };
+  Object.defineProperty(document,'cookie',{
+    set:function(v){ document.cookie=v; },
+    get:function(){ return document.cookie; },
+    configurable:true
+  });
+})();
+</script>
+`;
+
+function rewriteText(text) {
+  return text
+    .replace(/https?:\/\/(?:www\.)?romix\.tv(\/[^\s"'`),>]*)/g, '$1')
+    .replace(/https?:\/\/(?:www\.)?romix\.tv(['"`\s),>])/g, '/$1')
+    .replace(/((?:href|src|action|srcset)\s*=\s*["'])(\/(?!\/)[^"']*)(["'])/g, '$1$2$3');
 }
 
-async function proxyRequest(req, res, targetPath) {
+async function proxyRequest(req, res) {
+  const targetUrl = TARGET + req.url;
+
+  const reqHeaders = {
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    'accept': req.headers['accept'] || 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'accept-language': 'en-US,en;q=0.9',
+    'accept-encoding': 'identity',
+    'referer': TARGET + '/',
+    'origin': TARGET,
+    'host': TARGET_HOST,
+  };
+
+  if (req.headers['content-type']) reqHeaders['content-type'] = req.headers['content-type'];
+  if (req.headers['authorization']) reqHeaders['authorization'] = req.headers['authorization'];
+  if (req.headers['x-requested-with']) reqHeaders['x-requested-with'] = req.headers['x-requested-with'];
+
+  const rawCookies = req.headers['cookie'] || '';
+  if (rawCookies) reqHeaders['cookie'] = rawCookies;
+
+  let body;
+  if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
+    body = await new Promise((resolve, reject) => {
+      const chunks = [];
+      req.on('data', c => chunks.push(c));
+      req.on('end', () => resolve(Buffer.concat(chunks)));
+      req.on('error', reject);
+    });
+  }
+
   try {
-    const url = `${TARGET}${targetPath}`;
-    const headers = {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      'Accept': req.headers['accept'] || '*/*',
-      'Accept-Language': 'en-US,en;q=0.9',
-      'Accept-Encoding': 'identity',
-      'Referer': TARGET,
-      'Origin': TARGET,
-    };
-
-    if (req.headers['content-type']) headers['content-type'] = req.headers['content-type'];
-
-    const response = await fetch(url, {
+    const response = await fetch(targetUrl, {
       method: req.method,
-      headers,
-      redirect: 'follow',
+      headers: reqHeaders,
+      body: body || undefined,
+      redirect: 'manual',
     });
 
     const contentType = response.headers.get('content-type') || '';
+    const status = response.status;
 
     response.headers.forEach((value, name) => {
       const lower = name.toLowerCase();
-      if (BLOCKED_HEADERS.includes(lower)) return;
-      if (lower === 'transfer-encoding') return;
-      if (lower === 'content-encoding') return;
+      if (STRIP_RES_HEADERS.has(lower)) return;
+
+      if (lower === 'set-cookie') {
+        const cookies = value.split(/,(?=[^ ])/);
+        cookies.forEach(cookie => {
+          const rewritten = cookie
+            .replace(/\s*domain=[^;]+;?/gi, '')
+            .replace(/\s*secure;?/gi, '')
+            .replace(/\s*samesite=[^;]+;?/gi, '');
+          res.append('set-cookie', rewritten.trim());
+        });
+        return;
+      }
+
+      if (lower === 'location') {
+        let loc = value;
+        if (loc.startsWith('https://romix.tv')) loc = loc.replace('https://romix.tv', '');
+        if (loc.startsWith('https://www.romix.tv')) loc = loc.replace('https://www.romix.tv', '');
+        res.setHeader('location', loc || '/');
+        return;
+      }
+
       res.setHeader(name, value);
     });
 
-    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.status(response.status);
+    res.setHeader('access-control-allow-origin', '*');
+    res.setHeader('access-control-allow-credentials', 'true');
+    res.status(status);
 
     if (contentType.includes('text/html')) {
-      let body = await response.text();
-      body = rewriteUrls(body);
-      body = body.replace('</head>', `
-        <base href="${TARGET}/">
-        <style>
-          body { margin: 0 !important; }
-          iframe, frame { border: none !important; }
-        </style>
-        <script>
-          (function() {
-            var origOpen = XMLHttpRequest.prototype.open;
-            XMLHttpRequest.prototype.open = function(method, url) {
-              if (url && url.startsWith('/') && !url.startsWith('/proxy')) {
-                url = '/proxy' + url;
-              }
-              return origOpen.apply(this, arguments);
-            };
-          })();
-        </script>
-      </head>`);
+      let text = await response.text();
+      text = rewriteText(text);
+      text = text.replace(/<head([^>]*)>/i, `<head$1>${INTERCEPT_SCRIPT}`);
+      text = text.replace(/<body([^>]*)>/i, `<body$1>${NAV_INJECT}`);
       res.setHeader('content-type', 'text/html; charset=utf-8');
-      res.send(body);
-    } else if (contentType.includes('text/css') || contentType.includes('javascript')) {
-      let body = await response.text();
-      body = rewriteUrls(body);
-      res.send(body);
-    } else {
-      const buffer = await response.arrayBuffer();
-      res.send(Buffer.from(buffer));
+      return res.send(text);
     }
+
+    if (contentType.includes('javascript') || contentType.includes('text/css')) {
+      const text = await response.text();
+      return res.send(rewriteText(text));
+    }
+
+    const buf = await response.arrayBuffer();
+    res.send(Buffer.from(buf));
+
   } catch (err) {
-    console.error('Proxy error:', err.message);
-    res.status(502).send('Proxy error: ' + err.message);
+    console.error('[proxy error]', req.url, err.message);
+    if (!res.headersSent) res.status(502).send('Proxy error: ' + err.message);
   }
 }
 
-app.use('/proxy', async (req, res) => {
-  const targetPath = req.url || '/';
-  await proxyRequest(req, res, targetPath);
+app.use(express.raw({ type: '*/*', limit: '20mb' }));
+
+app.get('/sw.js', (req, res) => {
+  res.setHeader('content-type', 'application/javascript');
+  res.setHeader('service-worker-allowed', '/');
+  res.sendFile(path.join(__dirname, 'sw.js'));
 });
 
-app.get('/', (req, res) => {
-  res.send(`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Driva TV</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #0a0a0a; color: #fff; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-    nav { display: flex; align-items: center; justify-content: space-between; padding: 0 24px; height: 54px; background: #111; border-bottom: 1px solid #222; flex-shrink: 0; z-index: 10; }
-    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #e63946, #c1121f); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-    .logo-icon svg { width: 18px; height: 18px; fill: #fff; }
-    .logo-text { font-size: 20px; font-weight: 700; color: #fff; }
-    .logo-text span { color: #e63946; }
-    .nav-links { display: flex; gap: 28px; list-style: none; }
-    .nav-links a { color: #bbb; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
-    .nav-links a:hover { color: #fff; }
-    .nav-right { display: flex; align-items: center; gap: 12px; }
-    .btn { background: #e63946; color: #fff; border: none; padding: 8px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; transition: background 0.2s; }
-    .btn:hover { background: #c1121f; }
-    .frame-wrapper { flex: 1; position: relative; overflow: hidden; }
-    iframe { width: 100%; height: 100%; border: none; display: block; }
-    .loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; background: #0a0a0a; z-index: 5; }
-    .spinner { width: 44px; height: 44px; border: 3px solid #222; border-top-color: #e63946; border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading p { color: #666; font-size: 14px; }
-    footer { background: #111; border-top: 1px solid #222; text-align: center; padding: 10px 24px; font-size: 12px; color: #555; flex-shrink: 0; }
-    footer a { color: #777; text-decoration: none; }
-    @media (max-width: 600px) { .nav-links { display: none; } }
-  </style>
-</head>
-<body>
-  <nav>
-    <a class="nav-logo" href="/">
-      <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
-      <div class="logo-text">Driva<span>.tv</span></div>
-    </a>
-    <ul class="nav-links">
-      <li><a href="/proxy/">Home</a></li>
-      <li><a href="/proxy/live" id="live-link">Live</a></li>
-      <li><a href="/proxy/shows" id="shows-link">Shows</a></li>
-      <li><a href="/proxy/sports" id="sports-link">Sports</a></li>
-    </ul>
-    <div class="nav-right">
-      <a class="btn" href="/proxy/">Watch Now</a>
-    </div>
-  </nav>
+app.use('/', proxyRequest);
 
-  <div class="frame-wrapper">
-    <div class="loading" id="loading">
-      <div class="spinner"></div>
-      <p>Loading Romix TV&hellip;</p>
-    </div>
-    <iframe
-      id="main-frame"
-      src="/proxy/"
-      allowfullscreen
-      allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-      title="Romix TV"
-    ></iframe>
-  </div>
-
-  <footer>
-    &copy; 2026 Driva.tv &mdash; Powered by <a href="/proxy/" target="_self">Romix TV</a>
-  </footer>
-
-  <script>
-    const frame = document.getElementById('main-frame');
-    const loading = document.getElementById('loading');
-    frame.addEventListener('load', () => { loading.style.display = 'none'; });
-    setTimeout(() => { loading.style.display = 'none'; }, 8000);
-  </script>
-</body>
-</html>`);
-});
-
-app.listen(5000, '0.0.0.0', () => {
-  console.log('Driva.tv proxy running on port 5000');
-});
+app.listen(5000, '0.0.0.0', () => console.log('Driva.tv proxy running on :5000'));
