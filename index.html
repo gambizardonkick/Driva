@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Driva TV</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0a0a0a;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      height: 60px;
+      background: #111;
+      border-bottom: 1px solid #1e1e1e;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #e63946, #c1121f);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: #fff;
+    }
+
+    .logo-text {
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      color: #fff;
+    }
+
+    .logo-text span {
+      color: #e63946;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #999;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #fff;
+    }
+
+    .btn-primary {
+      background: #e63946;
+      color: #fff;
+      border: none;
+      padding: 9px 20px;
+      border-radius: 7px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.1s;
+      display: inline-block;
+    }
+
+    .btn-primary:hover {
+      background: #c1121f;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: #fff;
+      border: 1px solid #333;
+      padding: 9px 20px;
+      border-radius: 7px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.2s, background 0.2s;
+      display: inline-block;
+    }
+
+    .btn-outline:hover {
+      border-color: #555;
+      background: #1a1a1a;
+    }
+
+    /* HERO */
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 24px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(230,57,70,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      background: rgba(230,57,70,0.15);
+      color: #e63946;
+      border: 1px solid rgba(230,57,70,0.3);
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 28px;
+      display: inline-block;
+      letter-spacing: 0.5px;
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 72px);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 22px;
+      letter-spacing: -1px;
+    }
+
+    .hero h1 span {
+      color: #e63946;
+    }
+
+    .hero p {
+      font-size: clamp(16px, 2vw, 20px);
+      color: #888;
+      max-width: 520px;
+      line-height: 1.7;
+      margin-bottom: 40px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .hero-buttons .btn-primary {
+      font-size: 16px;
+      padding: 13px 32px;
+      border-radius: 9px;
+    }
+
+    .hero-buttons .btn-outline {
+      font-size: 16px;
+      padding: 13px 32px;
+      border-radius: 9px;
+    }
+
+    /* PLAYER PREVIEW */
+    .player-preview {
+      margin: 60px auto 0;
+      max-width: 860px;
+      width: 90%;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #222;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+      position: relative;
+    }
+
+    .player-mock {
+      background: #161616;
+      aspect-ratio: 16/9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .player-mock:hover {
+      background: #1a1a1a;
+    }
+
+    .play-btn {
+      width: 72px;
+      height: 72px;
+      background: rgba(230,57,70,0.9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .player-mock:hover .play-btn {
+      transform: scale(1.08);
+      background: #e63946;
+    }
+
+    .play-btn svg {
+      width: 28px;
+      height: 28px;
+      fill: #fff;
+      margin-left: 4px;
+    }
+
+    .player-mock p {
+      color: #666;
+      font-size: 15px;
+    }
+
+    .player-bar {
+      background: #111;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e63946;
+      animation: pulse 1.5s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .player-bar span {
+      font-size: 13px;
+      color: #777;
+    }
+
+    .player-bar strong {
+      color: #ccc;
+      font-size: 13px;
+    }
+
+    /* FEATURES */
+    .features {
+      padding: 80px 32px;
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .features-title {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 48px;
+      color: #eee;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: #111;
+      border: 1px solid #1e1e1e;
+      border-radius: 14px;
+      padding: 28px 24px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .feature-card:hover {
+      border-color: #333;
+      transform: translateY(-3px);
+    }
+
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(230,57,70,0.1);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      font-size: 22px;
+    }
+
+    .feature-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #eee;
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    /* CTA */
+    .cta {
+      background: linear-gradient(135deg, #1a0a0b, #0a0a0a);
+      border-top: 1px solid #1e1e1e;
+      text-align: center;
+      padding: 64px 24px;
+    }
+
+    .cta h2 {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    .cta p {
+      color: #777;
+      font-size: 16px;
+      margin-bottom: 32px;
+    }
+
+    /* FOOTER */
+    footer {
+      background: #0d0d0d;
+      border-top: 1px solid #1a1a1a;
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .footer-logo span {
+      font-size: 16px;
+      font-weight: 700;
+      color: #555;
+    }
+
+    .footer-logo span em {
+      font-style: normal;
+      color: #e63946;
+    }
+
+    footer p {
+      font-size: 13px;
+      color: #444;
+    }
+
+    footer a {
+      color: #666;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: #aaa;
+    }
+
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      nav { padding: 0 20px; }
+      footer { justify-content: center; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-logo" href="#">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+      <div class="logo-text">Driva<span>.tv</span></div>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Live</a></li>
+      <li><a href="#">Shows</a></li>
+      <li><a href="#">Sports</a></li>
+    </ul>
+
+    <a class="btn-primary" href="https://romix.tv" target="_blank">Watch Now</a>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-badge">Powered by Romix TV</div>
+    <h1>Watch Live TV &<br><span>On-Demand Content</span></h1>
+    <p>Stream your favorite shows, live sports, and more — all through Driva.tv, your gateway to Romix TV.</p>
+    <div class="hero-buttons">
+      <a class="btn-primary" href="https://romix.tv" target="_blank">▶ Start Watching</a>
+      <a class="btn-outline" href="https://romix.tv" target="_blank">Browse Content</a>
+    </div>
+
+    <div class="player-preview">
+      <a href="https://romix.tv" target="_blank" style="text-decoration:none;">
+        <div class="player-mock">
+          <div class="play-btn">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <p>Click to open Romix TV</p>
+        </div>
+      </a>
+      <div class="player-bar">
+        <div class="live-dot"></div>
+        <strong>Live Now</strong>
+        <span>— Streaming on Romix TV</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="features">
+    <h2 class="features-title">Everything you need to watch</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📺</div>
+        <h3>Live TV</h3>
+        <p>Watch live channels and events as they happen, anytime from anywhere.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎬</div>
+        <h3>On Demand</h3>
+        <p>Browse a full library of shows and movies at your own pace.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏆</div>
+        <h3>Sports</h3>
+        <p>Catch live sports coverage, highlights, and replays in one place.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>Any Device</h3>
+        <p>Stream from your phone, tablet, laptop, or smart TV — wherever you are.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <h2>Ready to start watching?</h2>
+    <p>Head over to Romix TV and start streaming instantly.</p>
+    <a class="btn-primary" href="https://romix.tv" target="_blank" style="font-size:16px; padding:13px 36px; border-radius:9px;">Go to Romix TV &rarr;</a>
+  </section>
+
+  <footer>
+    <a class="footer-logo" href="#">
+      <div class="logo-icon" style="width:24px;height:24px;border-radius:6px;">
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:#fff;"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+      <span>Driva<em>.tv</em></span>
+    </a>
+    <p>&copy; 2026 Driva.tv &mdash; Powered by <a href="https://romix.tv" target="_blank">Romix TV</a></p>
+  </footer>
+
+</body>
+</html>
