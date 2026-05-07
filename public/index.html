@@ -15,14 +15,8 @@
       --purple: #8b5cf6;
       --purple-light: #a78bfa;
       --purple-dark: #6d28d9;
-      --pink: #ec4899;
-      --pink-bright: #f472b6;
-      --blue: #3b82f6;
       --bg: #07070f;
-      --surface: rgba(255,255,255,0.04);
-      --surface-hover: rgba(255,255,255,0.07);
       --border: rgba(255,255,255,0.08);
-      --border-purple: rgba(139,92,246,0.3);
       --text: #fff;
       --text-muted: #9ca3af;
       --green: #22c55e;
@@ -128,15 +122,6 @@
       display: flex; align-items: center; gap: 10px;
       cursor: pointer; text-decoration: none;
     }
-
-    .nav-logo-icon {
-      width: 34px; height: 34px;
-      background: linear-gradient(135deg, var(--purple), var(--purple-dark));
-      border-radius: 9px;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 20px rgba(139,92,246,0.5);
-    }
-    .nav-logo-icon svg { width: 16px; height: 16px; fill: #fff; }
 
     .nav-logo-text {
       font-family: var(--font-head);
@@ -282,7 +267,6 @@
       font-size: 13px;
       margin-bottom: 24px;
     }
-    .period-info strong { color: rgba(255,255,255,0.75); }
 
     /* ── PODIUM ── */
     .podium {
@@ -499,9 +483,7 @@
 
 <footer>
   <div class="footer-logo">
-    <div class="nav-logo-icon" style="width:26px;height:26px;border-radius:7px;">
-      <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:#fff;"><path d="M8 5v14l11-7z"/></svg>
-    </div>
+    <img src="/logo.svg" alt="Driva.tv" style="height:24px;width:auto;opacity:0.5;"/>
     <div class="footer-logo-text">Driva<span>.tv</span></div>
   </div>
   <p>&copy; 2026 Driva.tv — All rights reserved</p>
