@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Driva.tv</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --purple: #8b5cf6;
+      --purple-light: #a78bfa;
+      --purple-dark: #6d28d9;
+      --purple-glow: rgba(139,92,246,0.15);
+      --bg: #0a0a14;
+      --surface: #12121f;
+      --surface2: #1a1a2e;
+      --border: rgba(139,92,246,0.15);
+      --text: #fff;
+      --text-muted: #9ca3af;
+      --green: #22c55e;
+      --font-body: 'Inter', sans-serif;
+      --font-head: 'Poppins', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background:
+        radial-gradient(ellipse at top left, var(--purple-glow) 0%, transparent 50%),
+        radial-gradient(ellipse at top right, rgba(124,58,237,0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom left, rgba(167,139,250,0.08) 0%, transparent 50%),
+        var(--bg);
+      background-attachment: fixed;
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    * { scrollbar-width: thin; scrollbar-color: var(--purple) #1a1a24; }
+    *::-webkit-scrollbar { width: 6px; }
+    *::-webkit-scrollbar-track { background: #1a1a24; }
+    *::-webkit-scrollbar-thumb { background: var(--purple); border-radius: 3px; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      height: 64px;
+      background: rgba(10,10,20,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px;
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer; text-decoration: none;
+    }
+
+    .nav-logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 16px rgba(139,92,246,0.4);
+    }
+
+    .nav-logo-icon svg { width: 18px; height: 18px; fill: #fff; }
+
+    .nav-logo-text {
+      font-family: var(--font-head);
+      font-size: 20px; font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    .nav-logo-text span { color: var(--purple-light); }
+
+    .nav-links { display: flex; gap: 8px; }
+
+    .nav-link {
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 14px; font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none; background: none;
+    }
+
+    .nav-link:hover { color: #fff; background: rgba(255,255,255,0.05); }
+    .nav-link.active { color: #fff; background: rgba(139,92,246,0.15); }
+
+    .nav-play-btn {
+      background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+      color: #fff;
+      border: none; border-radius: 10px;
+      padding: 9px 22px;
+      font-size: 14px; font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(139,92,246,0.35);
+      text-decoration: none;
+    }
+
+    .nav-play-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(139,92,246,0.5);
+    }
+
+    /* MAIN */
+    main { padding-top: 64px; min-height: 100vh; }
+
+    /* PAGE */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* LEADERBOARD */
+    .lb-hero {
+      text-align: center;
+      padding: 56px 24px 40px;
+    }
+
+    .lb-hero h1 {
+      font-family: var(--font-head);
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 900;
+      color: var(--purple-light);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .lb-hero .lb-subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+
+    .tabs {
+      display: flex; gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .tab {
+      padding: 10px 28px;
+      border-radius: 10px;
+      font-size: 14px; font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .tab:hover { color: #fff; border-color: var(--purple); }
+
+    .tab.active {
+      background: var(--purple);
+      border-color: var(--purple);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(139,92,246,0.35);
+    }
+
+    .period-tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 36px; }
+
+    .period-tab {
+      padding: 8px 22px;
+      border-radius: 8px;
+      font-size: 13px; font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .period-tab.active {
+      background: rgba(139,92,246,0.15);
+      border-color: var(--purple);
+      color: #fff;
+    }
+
+    .lb-container { max-width: 960px; margin: 0 auto; padding: 0 20px 60px; }
+
+    /* PODIUM */
+    .podium {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+      align-items: end;
+    }
+
+    .podium-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 20px 24px;
+      text-align: center;
+      transition: transform 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .podium-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at top, rgba(139,92,246,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .podium-card:hover { transform: translateY(-4px); }
+
+    .podium-card.rank-1 {
+      border-color: rgba(139,92,246,0.4);
+      background: linear-gradient(135deg, rgba(139,92,246,0.1), var(--surface));
+      order: 2;
+      padding-top: 40px;
+    }
+
+    .podium-card.rank-2 { order: 1; }
+    .podium-card.rank-3 { order: 3; }
+
+    .avatar-wrap { position: relative; display: inline-block; margin-bottom: 12px; }
+
+    .avatar {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-head);
+      font-size: 28px; font-weight: 800;
+      color: #fff;
+    }
+
+    .rank-badge {
+      position: absolute; bottom: -2px; right: -2px;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800;
+      border: 2px solid var(--bg);
+    }
+
+    .rank-badge.r1 { background: #f59e0b; color: #000; }
+    .rank-badge.r2 { background: #9ca3af; color: #000; }
+    .rank-badge.r3 { background: #cd7c3c; color: #000; }
+
+    .podium-name {
+      font-weight: 700; font-size: 15px;
+      margin-bottom: 10px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .podium-wagered { font-size: 20px; font-weight: 800; margin-bottom: 2px; }
+    .podium-label { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+    .podium-prize { font-size: 22px; font-weight: 800; color: var(--green); margin-bottom: 2px; }
+    .podium-prize-label { font-size: 12px; color: var(--text-muted); }
+
+    /* TABLE */
+    .lb-table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    thead tr { background: rgba(139,92,246,0.08); }
+
+    th {
+      padding: 14px 20px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 14px 20px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(139,92,246,0.05);
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(139,92,246,0.04); }
+
+    .rank-num {
+      font-weight: 700;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .username-cell { font-weight: 600; }
+
+    .wager-cell { font-weight: 700; font-size: 15px; }
+
+    .prize-cell { font-weight: 700; color: var(--green); }
+
+    /* PERIOD INFO */
+    .period-info {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    .period-info strong { color: #fff; }
+
+    /* COUNTDOWN */
+    .countdown-wrap {
+      display: flex; justify-content: center; gap: 16px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .countdown-unit {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      text-align: center;
+      min-width: 80px;
+    }
+
+    .countdown-num {
+      font-family: var(--font-head);
+      font-size: 32px; font-weight: 800;
+      color: var(--purple-light);
+      line-height: 1;
+    }
+
+    .countdown-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* RULES */
+    .rules-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+
+    .rules-box h3 { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--purple-light); }
+    .rules-box ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .rules-box li { font-size: 13px; color: var(--text-muted); padding-left: 16px; position: relative; }
+    .rules-box li::before { content: '•'; position: absolute; left: 0; color: var(--purple); }
+
+    /* PRIZE POOL HEADER */
+    .pool-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .pool-amount {
+      font-family: var(--font-head);
+      font-size: clamp(36px, 5vw, 60px);
+      font-weight: 900;
+      color: var(--purple-light);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .pool-label { font-size: 14px; color: var(--text-muted); }
+
+    /* ===== WAGER MILESTONES ===== */
+    .wm-hero {
+      text-align: center;
+      padding: 56px 24px 48px;
+    }
+
+    .wm-hero h1 {
+      font-family: var(--font-head);
+      font-size: clamp(36px, 5vw, 60px);
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    .wm-hero p { font-size: 16px; color: var(--text-muted); max-width: 500px; margin: 0 auto; }
+
+    .wm-container { max-width: 960px; margin: 0 auto; padding: 0 20px 60px; }
+
+    .wm-platform-tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 40px; }
+
+    .tier-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .tier-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 20px;
+      text-align: center;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tier-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at top, rgba(139,92,246,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .tier-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(139,92,246,0.35);
+      box-shadow: 0 8px 28px rgba(139,92,246,0.15);
+    }
+
+    .tier-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(109,40,217,0.2));
+      border: 1px solid rgba(139,92,246,0.3);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 22px;
+    }
+
+    .tier-wager {
+      font-family: var(--font-head);
+      font-size: 18px; font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .tier-desc { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+
+    .tier-reward {
+      font-family: var(--font-head);
+      font-size: 26px; font-weight: 900;
+      color: var(--green);
+      margin-bottom: 2px;
+    }
+
+    .tier-reward-label { font-size: 12px; color: var(--text-muted); }
+
+    /* RECENT CLAIMS */
+    .section-title {
+      font-family: var(--font-head);
+      font-size: 22px; font-weight: 800;
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .claims-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .claim-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 20px;
+      display: flex; align-items: center; gap: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .claim-card:hover { border-color: rgba(139,92,246,0.3); }
+
+    .claim-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .claim-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+    .claim-info { flex: 1; min-width: 0; }
+    .claim-user { font-weight: 600; font-size: 14px; }
+    .claim-tier { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    .claim-reward { font-weight: 800; color: var(--green); font-size: 16px; white-space: nowrap; }
+
+    /* LOADING */
+    .loading-state {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 80px 24px; gap: 16px;
+    }
+
+    .spinner {
+      width: 48px; height: 48px;
+      border: 3px solid rgba(139,92,246,0.2);
+      border-top-color: var(--purple);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-state p { color: var(--text-muted); font-size: 14px; }
+
+    /* FOOTER */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 24px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+
+    .footer-logo { display: flex; align-items: center; gap: 8px; }
+    .footer-logo-text { font-family: var(--font-head); font-size: 16px; font-weight: 800; color: #555; }
+    .footer-logo-text span { color: var(--purple); }
+    footer p { font-size: 12px; color: #444; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(139,92,246,0.1);
+      border: 1px solid rgba(139,92,246,0.2);
+      color: var(--purple-light);
+      padding: 4px 12px; border-radius: 50px;
+      font-size: 12px; font-weight: 600;
+      margin-bottom: 16px;
+      letter-spacing: 0.3px;
+    }
+
+    .no-data { text-align: center; color: var(--text-muted); padding: 40px; font-size: 14px; }
+
+    @media (max-width: 700px) {
+      nav { padding: 0 16px; }
+      .nav-links { gap: 2px; }
+      .nav-link { padding: 8px 12px; font-size: 13px; }
+      .podium { grid-template-columns: 1fr; }
+      .podium-card.rank-1 { order: 0; }
+      .podium-card.rank-2 { order: 1; }
+      .podium-card.rank-3 { order: 2; }
+      th:nth-child(3), td:nth-child(3) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" onclick="navigate('leaderboard')">
+    <div class="nav-logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </div>
+    <div class="nav-logo-text">Driva<span>.tv</span></div>
+  </a>
+  <div class="nav-links">
+    <button class="nav-link active" id="nav-leaderboard" onclick="navigate('leaderboard')">Leaderboard</button>
+    <button class="nav-link" id="nav-wager" onclick="navigate('wager')">Wager Milestones</button>
+  </div>
+  <a class="nav-play-btn" href="https://shuffle.com/?r=ROMIX" target="_blank">Play Now</a>
+</nav>
+
+<main>
+  <!-- LEADERBOARD PAGE -->
+  <div class="page active" id="page-leaderboard">
+    <div class="lb-hero">
+      <div class="badge">🏆 Live Leaderboard</div>
+      <h1 id="lb-platform-name">Shuffle</h1>
+      <div class="lb-subtitle" id="lb-pool-display">Monthly Leaderboard</div>
+
+      <div class="tabs" id="platform-tabs"></div>
+      <div class="period-tabs">
+        <button class="period-tab active" id="tab-current" onclick="setPeriod('current')">Current Period</button>
+        <button class="period-tab" id="tab-previous" onclick="setPeriod('previous')">Last Period</button>
+      </div>
+    </div>
+
+    <div class="lb-container" id="lb-content">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading leaderboard…</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- WAGER MILESTONES PAGE -->
+  <div class="page" id="page-wager">
+    <div class="wm-hero">
+      <div class="badge">💎 Wager Milestones</div>
+      <h1>Wager <span style="color:var(--purple-light)">Milestones</span></h1>
+      <p>Earn cash rewards as you wager on Shuffle using code <strong>ROMIX</strong>. The more you wager, the more you earn.</p>
+    </div>
+
+    <div class="wm-container" id="wm-content">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading milestones…</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-logo">
+    <div class="nav-logo-icon" style="width:28px;height:28px;border-radius:8px;">
+      <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:#fff;"><path d="M8 5v14l11-7z"/></svg>
+    </div>
+    <div class="footer-logo-text">Driva<span>.tv</span></div>
+  </div>
+  <p>&copy; 2026 Driva.tv — All rights reserved</p>
+</footer>
+
+<script>
+  // STATE
+  let lbData = null;
+  let wmData = null;
+  let currentPlatform = 'shuffle';
+  let currentPeriod = 'current';
+  let countdown = null;
+
+  // NAVIGATION
+  function navigate(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    document.getElementById('nav-' + (page === 'leaderboard' ? 'leaderboard' : 'wager')).classList.add('active');
+    window.scrollTo(0, 0);
+    if (page === 'leaderboard' && !lbData) loadLeaderboard();
+    if (page === 'wager' && !wmData) loadWagerMilestones();
+  }
+
+  // FORMAT
+  function fmt(n) {
+    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+  }
+
+  function fmtCurrency(n, sym) {
+    return (sym || '$') + fmt(n);
+  }
+
+  // LEADERBOARD
+  async function loadLeaderboard(period) {
+    period = period || currentPeriod;
+    document.getElementById('lb-content').innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Loading leaderboard…</p></div>`;
+    try {
+      const r = await fetch('/api/leaderboard?period=' + period);
+      lbData = (await r.json()).data;
+      currentPeriod = period;
+      renderPlatformTabs();
+      renderLeaderboard();
+    } catch(e) {
+      document.getElementById('lb-content').innerHTML = `<div class="no-data">Failed to load leaderboard data.</div>`;
+    }
+  }
+
+  function renderPlatformTabs() {
+    if (!lbData) return;
+    const tabs = document.getElementById('platform-tabs');
+    const platforms = lbData.platforms || [];
+    tabs.innerHTML = platforms.map(p => `
+      <button class="tab ${p.slug === currentPlatform ? 'active' : ''}"
+        onclick="selectPlatform('${p.slug}')">
+        ${p.name}
+      </button>
+    `).join('');
+  }
+
+  function selectPlatform(slug) {
+    currentPlatform = slug;
+    renderPlatformTabs();
+    renderLeaderboard();
+  }
+
+  function setPeriod(p) {
+    document.getElementById('tab-current').classList.toggle('active', p === 'current');
+    document.getElementById('tab-previous').classList.toggle('active', p === 'previous');
+    lbData = null;
+    loadLeaderboard(p);
+  }
+
+  function renderLeaderboard() {
+    if (!lbData) return;
+    const lb = lbData.all_leaderboards[currentPlatform];
+    if (!lb) return;
+
+    const platform = lb.platform;
+    const top3 = lb.top_three || [];
+    const rest = lb.rest_of_users || [];
+    const prizes = lb.prizes || [];
+    const period = lb.current_period || {};
+    const sym = lb.currency_symbol || '$';
+    const totalPool = (lbData.platforms || []).find(p => p.slug === currentPlatform)?.active_leaderboard?.total_prize_pool;
+
+    // Hero
+    document.getElementById('lb-platform-name').textContent = platform.name;
+    if (totalPool) {
+      document.getElementById('lb-pool-display').innerHTML = `<span style="font-size:48px;font-family:var(--font-head);font-weight:900;color:var(--purple-light);">${sym}${Number(totalPool).toLocaleString('en-US', {minimumFractionDigits:2})}</span><br><span style="font-size:16px;color:var(--text-muted);">Monthly Leaderboard</span>`;
+    }
+
+    // Countdown
+    let countdownHtml = '';
+    if (period.endTimestamp) {
+      countdownHtml = `<div class="countdown-wrap" id="countdown-wrap">
+        <div class="countdown-unit"><div class="countdown-num" id="cd-d">--</div><div class="countdown-label">Days</div></div>
+        <div class="countdown-unit"><div class="countdown-num" id="cd-h">--</div><div class="countdown-label">Hours</div></div>
+        <div class="countdown-unit"><div class="countdown-num" id="cd-m">--</div><div class="countdown-label">Mins</div></div>
+        <div class="countdown-unit"><div class="countdown-num" id="cd-s">--</div><div class="countdown-label">Secs</div></div>
+      </div>`;
+    }
+
+    // Period info
+    const periodHtml = period.start ? `
+      <div class="period-info">Period: <strong>${period.start}</strong> — <strong>${period.end}</strong></div>
+    ` : '';
+
+    // Podium
+    const podiumCards = ['rank-1','rank-2','rank-3'].map((cls, i) => {
+      const u = top3[i];
+      if (!u) return '';
+      const initials = u.displayName ? u.displayName[0].toUpperCase() : '?';
+      const prize = prizes[i];
+      return `
+        <div class="podium-card ${cls}">
+          <div class="avatar-wrap">
+            <div class="avatar">${initials}</div>
+            <div class="rank-badge r${i+1}">#${i+1}</div>
+          </div>
+          <div class="podium-name">${u.displayName}</div>
+          <div class="podium-wagered">${sym}${fmt(u.wagered)}</div>
+          <div class="podium-label">Wagered</div>
+          ${prize ? `<div class="podium-prize">${sym}${fmt(prize.amount)}</div><div class="podium-prize-label">Prize</div>` : ''}
+        </div>`;
+    }).join('');
+
+    // Table (positions 4+)
+    const allUsers = [...rest];
+    const tableRows = allUsers.map((u, i) => {
+      const rank = i + 4;
+      const prize = prizes[rank - 1];
+      return `<tr>
+        <td><span class="rank-num">#${rank}</span></td>
+        <td><span class="username-cell">${u.displayName}</span></td>
+        <td><span class="wager-cell">${sym}${fmt(u.wagered)}</span></td>
+        <td><span class="prize-cell">${prize ? sym + fmt(prize.amount) : '—'}</span></td>
+      </tr>`;
+    }).join('');
+
+    // Rules
+    const rules = lb.rules || [];
+    const rulesHtml = rules.length ? `
+      <div class="rules-box">
+        <h3>📋 Rules</h3>
+        <ul>${rules.map(r => `<li>${r}</li>`).join('')}</ul>
+      </div>` : '';
+
+    document.getElementById('lb-content').innerHTML = `
+      ${countdownHtml}
+      ${periodHtml}
+      <div class="podium">${podiumCards}</div>
+      ${tableRows ? `<div class="lb-table-wrap">
+        <table>
+          <thead><tr>
+            <th>Rank</th><th>Player</th><th>Wagered</th><th>Prize</th>
+          </tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>` : ''}
+      ${rulesHtml}
+    `;
+
+    // Start countdown
+    if (period.endTimestamp) {
+      if (countdown) clearInterval(countdown);
+      countdown = setInterval(() => updateCountdown(period.endTimestamp), 1000);
+      updateCountdown(period.endTimestamp);
+    }
+  }
+
+  function updateCountdown(endTs) {
+    const now = Date.now();
+    const diff = endTs - now;
+    if (diff <= 0) { clearInterval(countdown); return; }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    const pad = n => String(n).padStart(2, '0');
+    const el = id => document.getElementById(id);
+    if (el('cd-d')) { el('cd-d').textContent = d; el('cd-h').textContent = pad(h); el('cd-m').textContent = pad(m); el('cd-s').textContent = pad(s); }
+  }
+
+  // WAGER MILESTONES
+  async function loadWagerMilestones() {
+    document.getElementById('wm-content').innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Loading milestones…</p></div>`;
+    try {
+      const r = await fetch('/api/vip-rewards');
+      wmData = (await r.json()).data;
+      renderWagerMilestones();
+    } catch(e) {
+      document.getElementById('wm-content').innerHTML = `<div class="no-data">Failed to load milestone data.</div>`;
+    }
+  }
+
+  const TIER_ICONS = ['🎯','💰','🏅','🥈','🥇','💎','👑','🌟','🔥','⚡'];
+
+  function renderWagerMilestones() {
+    if (!wmData) return;
+
+    const tiersByPlatform = wmData.tiers_by_platform || {};
+    const platforms = Object.keys(tiersByPlatform);
+    const recentClaims = wmData.recent_claims || [];
+
+    let platformTabsHtml = '';
+    let activePlatform = platforms[0] || '';
+    if (platforms.length > 1) {
+      platformTabsHtml = `<div class="wm-platform-tabs">${platforms.map((p, i) => `
+        <button class="tab ${i===0?'active':''}" onclick="selectWmPlatform('${p}', this)">${p}</button>
+      `).join('')}</div>`;
+    }
+
+    const claimsHtml = recentClaims.length ? `
+      <div class="section-title">Recent Claims</div>
+      <div class="claims-list">
+        ${recentClaims.map(c => {
+          const initials = c.user?.username?.[0]?.toUpperCase() || '?';
+          const avatarUrl = c.user?.id && c.user?.avatar
+            ? `https://cdn.discordapp.com/avatars/${c.user.id}/${c.user.avatar}.png?size=64`
+            : null;
+          return `<div class="claim-card">
+            <div class="claim-avatar">
+              ${avatarUrl ? `<img src="${avatarUrl}" onerror="this.parentElement.textContent='${initials}'" alt="${initials}"/>` : initials}
+            </div>
+            <div class="claim-info">
+              <div class="claim-user">${c.user?.username || 'Unknown'}</div>
+              <div class="claim-tier">Claimed ${c.tier?.name} milestone</div>
+            </div>
+            <div class="claim-reward">+$${fmt(c.reward_amount)}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    ` : '';
+
+    document.getElementById('wm-content').innerHTML = `
+      ${platformTabsHtml}
+      <div id="wm-tiers">${renderTierGrid(tiersByPlatform[activePlatform])}</div>
+      ${claimsHtml}
+    `;
+
+    window._wmTiersByPlatform = tiersByPlatform;
+  }
+
+  function renderTierGrid(platformData) {
+    const tiers = platformData?.tiers || [];
+    return `<div class="tier-grid">
+      ${tiers.map((t, i) => `
+        <div class="tier-card">
+          <div class="tier-icon">${TIER_ICONS[i] || '⭐'}</div>
+          <div class="tier-wager">${t.name}</div>
+          <div class="tier-desc">${t.description}</div>
+          <div class="tier-reward">$${fmt(t.reward_amount)}</div>
+          <div class="tier-reward-label">Cash Reward</div>
+        </div>
+      `).join('')}
+    </div>`;
+  }
+
+  function selectWmPlatform(name, btn) {
+    document.querySelectorAll('.wm-platform-tabs .tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('wm-tiers').innerHTML = renderTierGrid(window._wmTiersByPlatform[name]);
+  }
+
+  // INIT
+  loadLeaderboard();
+</script>
+</body>
+</html>
