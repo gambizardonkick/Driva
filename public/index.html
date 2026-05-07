@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Driva.tv</title>
+  <title>Driva.tv — Leaderboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet"/>
@@ -14,11 +14,14 @@
       --purple: #8b5cf6;
       --purple-light: #a78bfa;
       --purple-dark: #6d28d9;
-      --purple-glow: rgba(139,92,246,0.15);
-      --bg: #0a0a14;
-      --surface: #12121f;
-      --surface2: #1a1a2e;
-      --border: rgba(139,92,246,0.15);
+      --pink: #ec4899;
+      --pink-bright: #f472b6;
+      --blue: #3b82f6;
+      --bg: #07070f;
+      --surface: rgba(255,255,255,0.04);
+      --surface-hover: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08);
+      --border-purple: rgba(139,92,246,0.3);
       --text: #fff;
       --text-muted: #9ca3af;
       --green: #22c55e;
@@ -30,28 +33,91 @@
 
     body {
       font-family: var(--font-body);
-      background:
-        radial-gradient(ellipse at top left, var(--purple-glow) 0%, transparent 50%),
-        radial-gradient(ellipse at top right, rgba(124,58,237,0.12) 0%, transparent 50%),
-        radial-gradient(ellipse at bottom left, rgba(167,139,250,0.08) 0%, transparent 50%),
-        var(--bg);
-      background-attachment: fixed;
+      background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       overflow-x: hidden;
+      position: relative;
     }
 
+    /* ── BOKEH BACKGROUND ── */
+    .orbs {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.55;
+      animation: drift linear infinite;
+    }
+
+    .orb-1 {
+      width: 520px; height: 520px;
+      background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
+      top: -120px; left: -80px;
+      animation-duration: 22s;
+      animation-delay: 0s;
+    }
+    .orb-2 {
+      width: 420px; height: 420px;
+      background: radial-gradient(circle, #db2777 0%, transparent 70%);
+      top: 10%; right: -100px;
+      animation-duration: 28s;
+      animation-delay: -8s;
+      opacity: 0.45;
+    }
+    .orb-3 {
+      width: 360px; height: 360px;
+      background: radial-gradient(circle, #2563eb 0%, transparent 70%);
+      bottom: 20%; left: 5%;
+      animation-duration: 35s;
+      animation-delay: -14s;
+      opacity: 0.35;
+    }
+    .orb-4 {
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, #9333ea 0%, transparent 70%);
+      bottom: -60px; right: 15%;
+      animation-duration: 25s;
+      animation-delay: -5s;
+      opacity: 0.4;
+    }
+    .orb-5 {
+      width: 250px; height: 250px;
+      background: radial-gradient(circle, #be185d 0%, transparent 70%);
+      top: 45%; left: 40%;
+      animation-duration: 40s;
+      animation-delay: -20s;
+      opacity: 0.3;
+    }
+
+    @keyframes drift {
+      0%   { transform: translate(0px, 0px) scale(1); }
+      25%  { transform: translate(30px, -20px) scale(1.05); }
+      50%  { transform: translate(-20px, 30px) scale(0.97); }
+      75%  { transform: translate(15px, 15px) scale(1.03); }
+      100% { transform: translate(0px, 0px) scale(1); }
+    }
+
+    /* ── SCROLLBAR ── */
     * { scrollbar-width: thin; scrollbar-color: var(--purple) #1a1a24; }
-    *::-webkit-scrollbar { width: 6px; }
-    *::-webkit-scrollbar-track { background: #1a1a24; }
+    *::-webkit-scrollbar { width: 5px; }
+    *::-webkit-scrollbar-track { background: transparent; }
     *::-webkit-scrollbar-thumb { background: var(--purple); border-radius: 3px; }
 
-    /* NAV */
+    /* ── NAV ── */
     nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-      height: 64px;
-      background: rgba(10,10,20,0.85);
-      backdrop-filter: blur(16px);
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 60px;
+      background: rgba(7,7,15,0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border);
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 32px;
@@ -63,556 +129,379 @@
     }
 
     .nav-logo-icon {
-      width: 36px; height: 36px;
+      width: 34px; height: 34px;
       background: linear-gradient(135deg, var(--purple), var(--purple-dark));
-      border-radius: 10px;
+      border-radius: 9px;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 16px rgba(139,92,246,0.4);
+      box-shadow: 0 0 20px rgba(139,92,246,0.5);
     }
-
-    .nav-logo-icon svg { width: 18px; height: 18px; fill: #fff; }
+    .nav-logo-icon svg { width: 16px; height: 16px; fill: #fff; }
 
     .nav-logo-text {
       font-family: var(--font-head);
-      font-size: 20px; font-weight: 800;
-      color: #fff;
-      letter-spacing: -0.3px;
+      font-size: 19px; font-weight: 800;
+      color: #fff; letter-spacing: -0.3px;
     }
-
     .nav-logo-text span { color: var(--purple-light); }
 
-    .nav-links { display: flex; gap: 8px; }
-
-    .nav-link {
-      padding: 8px 18px;
-      border-radius: 8px;
-      font-size: 14px; font-weight: 500;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.2s;
-      border: none; background: none;
-    }
-
-    .nav-link:hover { color: #fff; background: rgba(255,255,255,0.05); }
-    .nav-link.active { color: #fff; background: rgba(139,92,246,0.15); }
-
     .nav-play-btn {
-      background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+      background: linear-gradient(135deg, var(--purple) 0%, #a21caf 100%);
       color: #fff;
-      border: none; border-radius: 10px;
+      border: none; border-radius: 9px;
       padding: 9px 22px;
-      font-size: 14px; font-weight: 600;
+      font-size: 13px; font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
-      box-shadow: 0 4px 14px rgba(139,92,246,0.35);
-      text-decoration: none;
+      box-shadow: 0 4px 18px rgba(139,92,246,0.4);
+      text-decoration: none; letter-spacing: 0.2px;
     }
-
     .nav-play-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(139,92,246,0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(139,92,246,0.6);
     }
 
-    /* MAIN */
-    main { padding-top: 64px; min-height: 100vh; }
+    /* ── LAYOUT ── */
+    main {
+      position: relative; z-index: 1;
+      padding-top: 60px; min-height: 100vh;
+    }
 
-    /* PAGE */
-    .page { display: none; }
-    .page.active { display: block; }
-
-    /* LEADERBOARD */
+    /* ── HERO ── */
     .lb-hero {
       text-align: center;
-      padding: 56px 24px 40px;
+      padding: 60px 24px 36px;
     }
 
-    .lb-hero h1 {
+    .hero-platform {
       font-family: var(--font-head);
-      font-size: clamp(40px, 6vw, 72px);
+      font-size: clamp(44px, 7vw, 80px);
       font-weight: 900;
-      color: var(--purple-light);
+      color: #fff;
       line-height: 1;
       margin-bottom: 8px;
+      text-shadow: 0 0 60px rgba(139,92,246,0.4);
     }
 
-    .lb-hero .lb-subtitle {
-      font-size: 18px;
+    .hero-pool {
+      font-family: var(--font-head);
+      font-size: clamp(42px, 7vw, 78px);
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #f472b6 0%, #ec4899 50%, #db2777 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 30px rgba(236,72,153,0.5));
+    }
+
+    .hero-label {
+      font-size: 15px;
       color: var(--text-muted);
       margin-bottom: 32px;
+      letter-spacing: 0.2px;
     }
 
-    .tabs {
+    /* ── PILLS / TABS ── */
+    .pill-row {
       display: flex; gap: 8px;
       justify-content: center;
       flex-wrap: wrap;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
     }
 
-    .tab {
-      padding: 10px 28px;
-      border-radius: 10px;
-      font-size: 14px; font-weight: 600;
+    .pill {
+      padding: 9px 24px;
+      border-radius: 50px;
+      font-size: 13px; font-weight: 600;
       cursor: pointer;
       border: 1px solid var(--border);
-      background: var(--surface);
+      background: rgba(255,255,255,0.05);
       color: var(--text-muted);
-      transition: all 0.2s;
+      transition: all 0.18s;
+      letter-spacing: 0.2px;
     }
-
-    .tab:hover { color: #fff; border-color: var(--purple); }
-
-    .tab.active {
-      background: var(--purple);
-      border-color: var(--purple);
+    .pill:hover { color: #fff; border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
+    .pill.active {
+      background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+      border-color: transparent;
       color: #fff;
-      box-shadow: 0 4px 14px rgba(139,92,246,0.35);
+      box-shadow: 0 4px 18px rgba(139,92,246,0.45);
     }
 
-    .period-tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 36px; }
-
-    .period-tab {
-      padding: 8px 22px;
-      border-radius: 8px;
-      font-size: 13px; font-weight: 500;
+    .play-pill {
+      padding: 9px 24px;
+      border-radius: 50px;
+      font-size: 13px; font-weight: 700;
       cursor: pointer;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--text-muted);
-      transition: all 0.2s;
-    }
-
-    .period-tab.active {
-      background: rgba(139,92,246,0.15);
-      border-color: var(--purple);
+      border: none;
+      background: linear-gradient(135deg, var(--purple) 0%, #a21caf 100%);
       color: #fff;
+      transition: all 0.18s;
+      text-decoration: none;
+      box-shadow: 0 4px 18px rgba(139,92,246,0.35);
+    }
+    .play-pill:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(139,92,246,0.55); }
+
+    /* ── CONTAINER ── */
+    .lb-container { max-width: 980px; margin: 0 auto; padding: 0 20px 80px; }
+
+    /* ── COUNTDOWN ── */
+    .countdown-wrap {
+      display: flex; justify-content: center; gap: 12px;
+      margin-bottom: 36px; flex-wrap: wrap;
     }
 
-    .lb-container { max-width: 960px; margin: 0 auto; padding: 0 20px 60px; }
+    .countdown-unit {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 24px;
+      text-align: center;
+      min-width: 88px;
+      backdrop-filter: blur(10px);
+    }
 
-    /* PODIUM */
+    .countdown-num {
+      font-family: var(--font-head);
+      font-size: 36px; font-weight: 900;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .countdown-label {
+      font-size: 10px; color: var(--text-muted);
+      margin-top: 5px; text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    /* ── PERIOD INFO ── */
+    .period-info {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+    .period-info strong { color: rgba(255,255,255,0.75); }
+
+    /* ── PODIUM ── */
     .podium {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 24px;
+      grid-template-columns: 1fr 1.08fr 1fr;
+      gap: 14px;
+      margin-bottom: 20px;
       align-items: end;
     }
 
     .podium-card {
-      background: var(--surface);
+      background: rgba(255,255,255,0.04);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 28px 20px 24px;
+      border-radius: 20px;
+      padding: 28px 18px 24px;
       text-align: center;
-      transition: transform 0.2s;
+      transition: transform 0.2s, box-shadow 0.2s;
       position: relative;
       overflow: hidden;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
 
     .podium-card::before {
       content: '';
       position: absolute; inset: 0;
-      background: radial-gradient(ellipse at top, rgba(139,92,246,0.08) 0%, transparent 60%);
+      background: radial-gradient(ellipse at top, rgba(139,92,246,0.1) 0%, transparent 65%);
       pointer-events: none;
     }
 
-    .podium-card:hover { transform: translateY(-4px); }
+    .podium-card:hover { transform: translateY(-5px); box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
 
     .podium-card.rank-1 {
-      border-color: rgba(139,92,246,0.4);
-      background: linear-gradient(135deg, rgba(139,92,246,0.1), var(--surface));
-      order: 2;
-      padding-top: 40px;
+      border-color: rgba(139,92,246,0.45);
+      background: rgba(139,92,246,0.08);
+      padding-top: 36px;
+    }
+    .podium-card.rank-1::before {
+      background: radial-gradient(ellipse at top, rgba(139,92,246,0.18) 0%, transparent 65%);
     }
 
-    .podium-card.rank-2 { order: 1; }
-    .podium-card.rank-3 { order: 3; }
-
-    .avatar-wrap { position: relative; display: inline-block; margin-bottom: 12px; }
+    .avatar-wrap { position: relative; display: inline-block; margin-bottom: 14px; }
 
     .avatar {
-      width: 72px; height: 72px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+      width: 76px; height: 76px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple) 0%, #a21caf 100%);
       display: flex; align-items: center; justify-content: center;
       font-family: var(--font-head);
-      font-size: 28px; font-weight: 800;
+      font-size: 30px; font-weight: 900;
       color: #fff;
+      box-shadow: 0 8px 24px rgba(139,92,246,0.4);
     }
 
     .rank-badge {
       position: absolute; bottom: -2px; right: -2px;
-      width: 26px; height: 26px;
+      width: 28px; height: 28px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 800;
+      font-size: 11px; font-weight: 900;
       border: 2px solid var(--bg);
     }
-
-    .rank-badge.r1 { background: #f59e0b; color: #000; }
-    .rank-badge.r2 { background: #9ca3af; color: #000; }
-    .rank-badge.r3 { background: #cd7c3c; color: #000; }
+    .rank-badge.r1 { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; }
+    .rank-badge.r2 { background: linear-gradient(135deg, #cbd5e1, #94a3b8); color: #000; }
+    .rank-badge.r3 { background: linear-gradient(135deg, #cd7c3c, #b45309); color: #fff; }
 
     .podium-name {
-      font-weight: 700; font-size: 15px;
-      margin-bottom: 10px;
+      font-weight: 700; font-size: 15px; margin-bottom: 12px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
 
     .podium-wagered { font-size: 20px; font-weight: 800; margin-bottom: 2px; }
-    .podium-label { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
-    .podium-prize { font-size: 22px; font-weight: 800; color: var(--green); margin-bottom: 2px; }
-    .podium-prize-label { font-size: 12px; color: var(--text-muted); }
+    .podium-label { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; letter-spacing: 0.3px; }
+    .podium-prize { font-size: 22px; font-weight: 900; color: var(--green); margin-bottom: 2px; }
+    .podium-prize-label { font-size: 11px; color: var(--text-muted); }
 
-    /* TABLE */
+    /* ── TABLE ── */
     .lb-table-wrap {
-      background: var(--surface);
+      background: rgba(255,255,255,0.03);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 18px;
       overflow: hidden;
       margin-bottom: 24px;
+      backdrop-filter: blur(12px);
     }
 
     table { width: 100%; border-collapse: collapse; }
 
-    thead tr { background: rgba(139,92,246,0.08); }
+    thead tr { background: rgba(139,92,246,0.07); }
 
     th {
-      padding: 14px 20px;
+      padding: 13px 20px;
       text-align: left;
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 11px; font-weight: 700;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
       border-bottom: 1px solid var(--border);
     }
 
     td {
-      padding: 14px 20px;
+      padding: 13px 20px;
       font-size: 14px;
-      border-bottom: 1px solid rgba(139,92,246,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.03);
     }
 
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: rgba(139,92,246,0.04); }
+    tr:hover td { background: rgba(255,255,255,0.025); }
 
-    .rank-num {
-      font-weight: 700;
-      color: var(--text-muted);
-      font-size: 13px;
-    }
-
+    .rank-num { font-weight: 700; color: var(--text-muted); font-size: 13px; }
     .username-cell { font-weight: 600; }
+    .wager-cell { font-weight: 700; }
+    .prize-cell { font-weight: 800; color: var(--green); }
 
-    .wager-cell { font-weight: 700; font-size: 15px; }
-
-    .prize-cell { font-weight: 700; color: var(--green); }
-
-    /* PERIOD INFO */
-    .period-info {
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 13px;
-      margin-bottom: 20px;
-    }
-
-    .period-info strong { color: #fff; }
-
-    /* COUNTDOWN */
-    .countdown-wrap {
-      display: flex; justify-content: center; gap: 16px;
-      margin-bottom: 32px;
-      flex-wrap: wrap;
-    }
-
-    .countdown-unit {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 20px;
-      text-align: center;
-      min-width: 80px;
-    }
-
-    .countdown-num {
-      font-family: var(--font-head);
-      font-size: 32px; font-weight: 800;
-      color: var(--purple-light);
-      line-height: 1;
-    }
-
-    .countdown-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-
-    /* RULES */
+    /* ── RULES ── */
     .rules-box {
-      background: var(--surface);
+      background: rgba(255,255,255,0.03);
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 20px 24px;
       margin-bottom: 24px;
+      backdrop-filter: blur(10px);
     }
-
-    .rules-box h3 { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--purple-light); }
+    .rules-box h3 { font-size: 13px; font-weight: 700; margin-bottom: 12px; color: var(--purple-light); text-transform: uppercase; letter-spacing: 0.5px; }
     .rules-box ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-    .rules-box li { font-size: 13px; color: var(--text-muted); padding-left: 16px; position: relative; }
-    .rules-box li::before { content: '•'; position: absolute; left: 0; color: var(--purple); }
+    .rules-box li { font-size: 13px; color: var(--text-muted); padding-left: 16px; position: relative; line-height: 1.5; }
+    .rules-box li::before { content: '·'; position: absolute; left: 0; color: var(--purple); font-size: 18px; line-height: 1; }
 
-    /* PRIZE POOL HEADER */
-    .pool-header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-
-    .pool-amount {
-      font-family: var(--font-head);
-      font-size: clamp(36px, 5vw, 60px);
-      font-weight: 900;
-      color: var(--purple-light);
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-
-    .pool-label { font-size: 14px; color: var(--text-muted); }
-
-    /* ===== WAGER MILESTONES ===== */
-    .wm-hero {
-      text-align: center;
-      padding: 56px 24px 48px;
-    }
-
-    .wm-hero h1 {
-      font-family: var(--font-head);
-      font-size: clamp(36px, 5vw, 60px);
-      font-weight: 900;
-      margin-bottom: 12px;
-    }
-
-    .wm-hero p { font-size: 16px; color: var(--text-muted); max-width: 500px; margin: 0 auto; }
-
-    .wm-container { max-width: 960px; margin: 0 auto; padding: 0 20px 60px; }
-
-    .wm-platform-tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 40px; }
-
-    .tier-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 16px;
-      margin-bottom: 40px;
-    }
-
-    .tier-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 28px 20px;
-      text-align: center;
-      transition: all 0.2s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .tier-card::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse at top, rgba(139,92,246,0.06) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .tier-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(139,92,246,0.35);
-      box-shadow: 0 8px 28px rgba(139,92,246,0.15);
-    }
-
-    .tier-icon {
-      width: 52px; height: 52px;
-      background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(109,40,217,0.2));
-      border: 1px solid rgba(139,92,246,0.3);
-      border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 16px;
-      font-size: 22px;
-    }
-
-    .tier-wager {
-      font-family: var(--font-head);
-      font-size: 18px; font-weight: 800;
-      margin-bottom: 4px;
-    }
-
-    .tier-desc { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
-
-    .tier-reward {
-      font-family: var(--font-head);
-      font-size: 26px; font-weight: 900;
-      color: var(--green);
-      margin-bottom: 2px;
-    }
-
-    .tier-reward-label { font-size: 12px; color: var(--text-muted); }
-
-    /* RECENT CLAIMS */
-    .section-title {
-      font-family: var(--font-head);
-      font-size: 22px; font-weight: 800;
-      margin-bottom: 20px;
-      display: flex; align-items: center; gap: 10px;
-    }
-
-    .section-title::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
-    .claims-list { display: flex; flex-direction: column; gap: 10px; }
-
-    .claim-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 20px;
-      display: flex; align-items: center; gap: 14px;
-      transition: border-color 0.2s;
-    }
-
-    .claim-card:hover { border-color: rgba(139,92,246,0.3); }
-
-    .claim-avatar {
-      width: 40px; height: 40px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--purple), var(--purple-dark));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px; font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .claim-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-
-    .claim-info { flex: 1; min-width: 0; }
-    .claim-user { font-weight: 600; font-size: 14px; }
-    .claim-tier { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-
-    .claim-reward { font-weight: 800; color: var(--green); font-size: 16px; white-space: nowrap; }
-
-    /* LOADING */
+    /* ── LOADING / EMPTY ── */
     .loading-state {
       display: flex; flex-direction: column; align-items: center;
       justify-content: center; padding: 80px 24px; gap: 16px;
     }
 
     .spinner {
-      width: 48px; height: 48px;
-      border: 3px solid rgba(139,92,246,0.2);
+      width: 44px; height: 44px;
+      border: 3px solid rgba(139,92,246,0.15);
       border-top-color: var(--purple);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
-
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .loading-state p { color: var(--text-muted); font-size: 14px; }
-
-    /* FOOTER */
-    footer {
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      padding: 24px 32px;
-      display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 12px;
-    }
-
-    .footer-logo { display: flex; align-items: center; gap: 8px; }
-    .footer-logo-text { font-family: var(--font-head); font-size: 16px; font-weight: 800; color: #555; }
-    .footer-logo-text span { color: var(--purple); }
-    footer p { font-size: 12px; color: #444; }
-
-    .badge {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: rgba(139,92,246,0.1);
-      border: 1px solid rgba(139,92,246,0.2);
-      color: var(--purple-light);
-      padding: 4px 12px; border-radius: 50px;
-      font-size: 12px; font-weight: 600;
-      margin-bottom: 16px;
-      letter-spacing: 0.3px;
-    }
-
+    .loading-state p { color: var(--text-muted); font-size: 13px; }
     .no-data { text-align: center; color: var(--text-muted); padding: 40px; font-size: 14px; }
 
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 20px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px;
+      background: rgba(7,7,15,0.6);
+      backdrop-filter: blur(10px);
+    }
+    .footer-logo { display: flex; align-items: center; gap: 8px; }
+    .footer-logo-text { font-family: var(--font-head); font-size: 15px; font-weight: 800; color: rgba(255,255,255,0.3); }
+    .footer-logo-text span { color: var(--purple); }
+    footer p { font-size: 12px; color: rgba(255,255,255,0.2); }
+
+    /* ── RESPONSIVE ── */
     @media (max-width: 700px) {
       nav { padding: 0 16px; }
-      .nav-links { gap: 2px; }
-      .nav-link { padding: 8px 12px; font-size: 13px; }
-      .podium { grid-template-columns: 1fr; }
+      .hero-platform { font-size: 44px; }
+      .hero-pool { font-size: 42px; }
+      .podium { grid-template-columns: 1fr; gap: 10px; }
       .podium-card.rank-1 { order: 0; }
       .podium-card.rank-2 { order: 1; }
       .podium-card.rank-3 { order: 2; }
       th:nth-child(3), td:nth-child(3) { display: none; }
+      .countdown-unit { min-width: 70px; padding: 14px 16px; }
+      .countdown-num { font-size: 28px; }
     }
   </style>
 </head>
 <body>
 
+<div class="orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="orb orb-5"></div>
+</div>
+
 <nav>
-  <a class="nav-logo" onclick="navigate('leaderboard')">
+  <a class="nav-logo" href="#">
     <div class="nav-logo-icon">
       <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
     </div>
     <div class="nav-logo-text">Driva<span>.tv</span></div>
   </a>
-  <div class="nav-links">
-    <button class="nav-link active" id="nav-leaderboard" onclick="navigate('leaderboard')">Leaderboard</button>
-    <button class="nav-link" id="nav-wager" onclick="navigate('wager')">Wager Milestones</button>
-  </div>
-  <a class="nav-play-btn" href="https://shuffle.com/?r=ROMIX" target="_blank">Play Now</a>
+  <a class="nav-play-btn" href="https://shuffle.com/?r=DRIVA" target="_blank" rel="noopener">Play Now</a>
 </nav>
 
 <main>
-  <!-- LEADERBOARD PAGE -->
-  <div class="page active" id="page-leaderboard">
-    <div class="lb-hero">
-      <div class="badge">🏆 Live Leaderboard</div>
-      <div id="lb-pool-display">
-        <span style="font-size:48px;font-family:var(--font-head);font-weight:900;color:var(--purple-light);">$15,001.00</span><br>
-        <span style="font-size:16px;color:var(--text-muted);">Monthly Leaderboard</span>
-      </div>
+  <div class="lb-hero">
+    <div class="hero-platform">Shuffle</div>
+    <div class="hero-pool" id="lb-pool-display">$15,001.00</div>
+    <div class="hero-label">Monthly Leaderboard</div>
 
-      <div class="period-tabs" style="margin-top:28px;">
-        <button class="period-tab active" id="tab-current" onclick="setPeriod('current')">Current Period</button>
-        <button class="period-tab" id="tab-previous" onclick="setPeriod('previous')">Last Period</button>
-      </div>
-    </div>
-
-    <div class="lb-container" id="lb-content">
-      <div class="loading-state">
-        <div class="spinner"></div>
-        <p>Loading leaderboard…</p>
-      </div>
+    <div class="pill-row">
+      <button class="pill active" id="tab-current" onclick="setPeriod('current')">Current Period</button>
+      <button class="pill" id="tab-previous" onclick="setPeriod('previous')">Last Period</button>
+      <a class="play-pill" href="https://shuffle.com/?r=DRIVA" target="_blank" rel="noopener">Play Now</a>
     </div>
   </div>
 
-  <!-- WAGER MILESTONES PAGE -->
-  <div class="page" id="page-wager">
-    <div class="wm-hero">
-      <div class="badge">💎 Wager Milestones</div>
-      <h1>Wager <span style="color:var(--purple-light)">Milestones</span></h1>
-      <p>Earn cash rewards as you wager on Shuffle using code <strong>ROMIX</strong>. The more you wager, the more you earn.</p>
-    </div>
-
-    <div class="wm-container" id="wm-content">
-      <div class="loading-state">
-        <div class="spinner"></div>
-        <p>Loading milestones…</p>
-      </div>
+  <div class="lb-container" id="lb-content">
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading leaderboard…</p>
     </div>
   </div>
 </main>
 
 <footer>
   <div class="footer-logo">
-    <div class="nav-logo-icon" style="width:28px;height:28px;border-radius:8px;">
-      <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:#fff;"><path d="M8 5v14l11-7z"/></svg>
+    <div class="nav-logo-icon" style="width:26px;height:26px;border-radius:7px;">
+      <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:#fff;"><path d="M8 5v14l11-7z"/></svg>
     </div>
     <div class="footer-logo-text">Driva<span>.tv</span></div>
   </div>
@@ -620,29 +509,14 @@
 </footer>
 
 <script>
-  // STATE
-  let wmData = null;
   let currentPeriod = 'current';
-  let lbCache = {};   // { current: data, previous: data }
+  let lbCache = {};
   let countdown = null;
 
-  // NAVIGATION
-  function navigate(page) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-    document.getElementById('page-' + page).classList.add('active');
-    document.getElementById('nav-' + (page === 'leaderboard' ? 'leaderboard' : 'wager')).classList.add('active');
-    window.scrollTo(0, 0);
-    if (page === 'leaderboard' && !lbCache[currentPeriod]) loadLeaderboard(currentPeriod);
-    if (page === 'wager' && !wmData) loadWagerMilestones();
-  }
-
-  // FORMAT
   function fmt(n) {
     return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
   }
 
-  // LEADERBOARD
   async function loadLeaderboard(period) {
     period = period || currentPeriod;
     document.getElementById('lb-content').innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Loading leaderboard…</p></div>`;
@@ -677,21 +551,18 @@
     const lb = data.all_leaderboards['shuffle'];
     if (!lb) return;
 
-    const top3 = lb.top_three || [];
-    const rest = lb.rest_of_users || [];
+    const top3   = lb.top_three || [];
+    const rest   = lb.rest_of_users || [];
     const prizes = lb.prizes || [];
     const period = lb.current_period || {};
-    const sym = lb.currency_symbol || '$';
+    const sym    = lb.currency_symbol || '$';
     const totalPool = (data.platforms || []).find(p => p.slug === 'shuffle')?.active_leaderboard?.total_prize_pool;
 
-    // Update hero prize pool
     if (totalPool) {
-      document.getElementById('lb-pool-display').innerHTML =
-        `<span style="font-size:48px;font-family:var(--font-head);font-weight:900;color:var(--purple-light);">${sym}${Number(totalPool).toLocaleString('en-US',{minimumFractionDigits:2})}</span><br>
-         <span style="font-size:16px;color:var(--text-muted);">Monthly Leaderboard</span>`;
+      document.getElementById('lb-pool-display').textContent = sym + Number(totalPool).toLocaleString('en-US', { minimumFractionDigits: 2 });
     }
 
-    // Countdown (only for current period)
+    // Countdown (current period only)
     let countdownHtml = '';
     if (currentPeriod === 'current' && period.endTimestamp) {
       countdownHtml = `<div class="countdown-wrap" id="countdown-wrap">
@@ -702,37 +573,37 @@
       </div>`;
     }
 
-    // Period info
-    const periodHtml = period.start ? `
-      <div class="period-info">Period: <strong>${period.start}</strong> — <strong>${period.end}</strong></div>` : '';
+    // Period dates
+    const periodHtml = period.start
+      ? `<div class="period-info">${period.start} &mdash; ${period.end}</div>`
+      : '';
 
-    // Podium (top 3 — #1 centre, #2 left, #3 right)
-    const podiumOrder = [1, 0, 2]; // index in top3 array
+    // Podium — #2 left, #1 centre, #3 right
+    const podiumOrder   = [1, 0, 2];
     const podiumClasses = ['rank-2', 'rank-1', 'rank-3'];
-    const rankClasses = ['r2', 'r1', 'r3'];
-    const rankNums = [2, 1, 3];
+    const rankBadges    = ['r2', 'r1', 'r3'];
+    const rankNums      = [2, 1, 3];
 
     const podiumCards = podiumOrder.map((idx, col) => {
       const u = top3[idx];
-      if (!u) return '';
-      const initials = u.displayName ? u.displayName[0].toUpperCase() : '?';
+      if (!u) return `<div class="podium-card ${podiumClasses[col]}"></div>`;
+      const init  = (u.displayName || '?')[0].toUpperCase();
       const prize = prizes[idx];
-      return `
-        <div class="podium-card ${podiumClasses[col]}">
-          <div class="avatar-wrap">
-            <div class="avatar">${initials}</div>
-            <div class="rank-badge ${rankClasses[col]}">#${rankNums[col]}</div>
-          </div>
-          <div class="podium-name">${u.displayName}</div>
-          <div class="podium-wagered">${sym}${fmt(u.wagered)}</div>
-          <div class="podium-label">Wagered</div>
-          ${prize ? `<div class="podium-prize">${sym}${fmt(prize.amount)}</div><div class="podium-prize-label">Prize</div>` : ''}
-        </div>`;
+      return `<div class="podium-card ${podiumClasses[col]}">
+        <div class="avatar-wrap">
+          <div class="avatar">${init}</div>
+          <div class="rank-badge ${rankBadges[col]}">#${rankNums[col]}</div>
+        </div>
+        <div class="podium-name">${u.displayName}</div>
+        <div class="podium-wagered">${sym}${fmt(u.wagered)}</div>
+        <div class="podium-label">Wagered</div>
+        ${prize ? `<div class="podium-prize">${sym}${fmt(prize.amount)}</div><div class="podium-prize-label">Prize</div>` : ''}
+      </div>`;
     }).join('');
 
-    // Table (positions 4+)
+    // Table rows 4+
     const tableRows = rest.map((u, i) => {
-      const rank = i + 4;
+      const rank  = i + 4;
       const prize = prizes[rank - 1];
       return `<tr>
         <td><span class="rank-num">#${rank}</span></td>
@@ -744,11 +615,9 @@
 
     // Rules
     const rules = lb.rules || [];
-    const rulesHtml = rules.length ? `
-      <div class="rules-box">
-        <h3>📋 Rules</h3>
-        <ul>${rules.map(r => `<li>${r}</li>`).join('')}</ul>
-      </div>` : '';
+    const rulesHtml = rules.length
+      ? `<div class="rules-box"><h3>Rules</h3><ul>${rules.map(r => `<li>${r}</li>`).join('')}</ul></div>`
+      : '';
 
     document.getElementById('lb-content').innerHTML = `
       ${countdownHtml}
@@ -763,15 +632,14 @@
       ${rulesHtml}
     `;
 
-    // Countdown tick
     if (countdown) clearInterval(countdown);
     if (currentPeriod === 'current' && period.endTimestamp) {
-      countdown = setInterval(() => updateCountdown(period.endTimestamp), 1000);
-      updateCountdown(period.endTimestamp);
+      countdown = setInterval(() => tick(period.endTimestamp), 1000);
+      tick(period.endTimestamp);
     }
   }
 
-  function updateCountdown(endTs) {
+  function tick(endTs) {
     const diff = endTs - Date.now();
     if (diff <= 0) { clearInterval(countdown); return; }
     const d = Math.floor(diff / 86400000);
@@ -779,93 +647,16 @@
     const m = Math.floor((diff % 3600000) / 60000);
     const s = Math.floor((diff % 60000) / 1000);
     const pad = n => String(n).padStart(2, '0');
-    const el = id => document.getElementById(id);
-    if (el('cd-d')) { el('cd-d').textContent = d; el('cd-h').textContent = pad(h); el('cd-m').textContent = pad(m); el('cd-s').textContent = pad(s); }
-  }
-
-  // WAGER MILESTONES
-  async function loadWagerMilestones() {
-    document.getElementById('wm-content').innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Loading milestones…</p></div>`;
-    try {
-      const r = await fetch('/api/vip-rewards');
-      wmData = (await r.json()).data;
-      renderWagerMilestones();
-    } catch(e) {
-      document.getElementById('wm-content').innerHTML = `<div class="no-data">Failed to load milestone data.</div>`;
+    const el  = id => document.getElementById(id);
+    if (el('cd-d')) {
+      el('cd-d').textContent = d;
+      el('cd-h').textContent = pad(h);
+      el('cd-m').textContent = pad(m);
+      el('cd-s').textContent = pad(s);
     }
   }
 
-  const TIER_ICONS = ['🎯','💰','🏅','🥈','🥇','💎','👑','🌟','🔥','⚡'];
-
-  function renderWagerMilestones() {
-    if (!wmData) return;
-
-    const tiersByPlatform = wmData.tiers_by_platform || {};
-    const platforms = Object.keys(tiersByPlatform);
-    const recentClaims = wmData.recent_claims || [];
-
-    let platformTabsHtml = '';
-    let activePlatform = platforms[0] || '';
-    if (platforms.length > 1) {
-      platformTabsHtml = `<div class="wm-platform-tabs">${platforms.map((p, i) => `
-        <button class="tab ${i===0?'active':''}" onclick="selectWmPlatform('${p}', this)">${p}</button>
-      `).join('')}</div>`;
-    }
-
-    const claimsHtml = recentClaims.length ? `
-      <div class="section-title">Recent Claims</div>
-      <div class="claims-list">
-        ${recentClaims.map(c => {
-          const initials = c.user?.username?.[0]?.toUpperCase() || '?';
-          const avatarUrl = c.user?.id && c.user?.avatar
-            ? `https://cdn.discordapp.com/avatars/${c.user.id}/${c.user.avatar}.png?size=64`
-            : null;
-          return `<div class="claim-card">
-            <div class="claim-avatar">
-              ${avatarUrl ? `<img src="${avatarUrl}" onerror="this.parentElement.textContent='${initials}'" alt="${initials}"/>` : initials}
-            </div>
-            <div class="claim-info">
-              <div class="claim-user">${c.user?.username || 'Unknown'}</div>
-              <div class="claim-tier">Claimed ${c.tier?.name} milestone</div>
-            </div>
-            <div class="claim-reward">+$${fmt(c.reward_amount)}</div>
-          </div>`;
-        }).join('')}
-      </div>
-    ` : '';
-
-    document.getElementById('wm-content').innerHTML = `
-      ${platformTabsHtml}
-      <div id="wm-tiers">${renderTierGrid(tiersByPlatform[activePlatform])}</div>
-      ${claimsHtml}
-    `;
-
-    window._wmTiersByPlatform = tiersByPlatform;
-  }
-
-  function renderTierGrid(platformData) {
-    const tiers = platformData?.tiers || [];
-    return `<div class="tier-grid">
-      ${tiers.map((t, i) => `
-        <div class="tier-card">
-          <div class="tier-icon">${TIER_ICONS[i] || '⭐'}</div>
-          <div class="tier-wager">${t.name}</div>
-          <div class="tier-desc">${t.description}</div>
-          <div class="tier-reward">$${fmt(t.reward_amount)}</div>
-          <div class="tier-reward-label">Cash Reward</div>
-        </div>
-      `).join('')}
-    </div>`;
-  }
-
-  function selectWmPlatform(name, btn) {
-    document.querySelectorAll('.wm-platform-tabs .tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('wm-tiers').innerHTML = renderTierGrid(window._wmTiersByPlatform[name]);
-  }
-
-  // INIT
-  loadLeaderboard();
+  loadLeaderboard('current');
 </script>
 </body>
 </html>
