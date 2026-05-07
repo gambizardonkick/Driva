@@ -15,9 +15,10 @@ const HEADERS = {
 
 app.get('/api/leaderboard', async (req, res) => {
   try {
-    const period = req.query.period || 'current';
+    const periodParam = req.query.period || 'current';
     const platform = req.query.platform || 'shuffle';
-    const params = new URLSearchParams({ period, platform });
+    const apiPeriod = periodParam === 'previous' ? 'last' : periodParam;
+    const params = new URLSearchParams({ period: apiPeriod, platform });
     const url = `${ROMIX}/api/r/leaderboard?${params}`;
     const r = await fetch(url, { headers: HEADERS });
     const data = await r.json();
