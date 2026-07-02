@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Driva TV</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0a0a;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 54px;
+      background: #111;
+      border-bottom: 1px solid #222;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #e63946, #c1121f);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-icon svg { width: 18px; height: 18px; fill: #fff; }
+
+    .logo-text { font-size: 20px; font-weight: 700; color: #fff; }
+    .logo-text span { color: #e63946; }
+
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a {
+      color: #bbb;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: #fff; }
+
+    .btn {
+      background: #e63946;
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #c1121f; }
+
+    .frame-wrapper {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #viewer {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: #0a0a0a;
+    }
+
+    .loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+      background: #0a0a0a;
+      z-index: 5;
+      transition: opacity 0.4s;
+    }
+
+    .loading.hidden { opacity: 0; pointer-events: none; }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 3px solid #222;
+      border-top-color: #e63946;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading p { color: #666; font-size: 14px; }
+
+    .error-box {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 14px;
+      text-align: center;
+      padding: 24px;
+      background: #0a0a0a;
+    }
+
+    .error-box h3 { font-size: 20px; color: #eee; }
+    .error-box p { color: #666; font-size: 14px; max-width: 380px; line-height: 1.6; }
+    .error-box a { color: #e63946; text-decoration: none; font-weight: 600; }
+
+    footer {
+      background: #111;
+      border-top: 1px solid #222;
+      text-align: center;
+      padding: 10px 24px;
+      font-size: 12px;
+      color: #555;
+      flex-shrink: 0;
+    }
+    footer a { color: #777; text-decoration: none; }
+
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      nav { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-logo" href="#" onclick="loadPage('https://romix.tv'); return false;">
+      <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      <div class="logo-text">Driva<span>.tv</span></div>
+    </a>
+    <ul class="nav-links">
+      <li><a onclick="loadPage('https://romix.tv')">Home</a></li>
+      <li><a onclick="loadPage('https://romix.tv/stream')">Stream</a></li>
+      <li><a onclick="loadPage('https://romix.tv/leaderboard')">Leaderboard</a></li>
+      <li><a onclick="loadPage('https://romix.tv/store')">Store</a></li>
+    </ul>
+    <a class="btn" onclick="loadPage('https://romix.tv')">Watch Now</a>
+  </nav>
+
+  <div class="frame-wrapper">
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p id="loading-text">Loading Romix TV&hellip;</p>
+    </div>
+
+    <div class="error-box" id="error-box">
+      <div style="font-size:48px">📺</div>
+      <h3>Unable to load content</h3>
+      <p>All embedding methods were blocked. <a href="https://romix.tv" target="_blank">Open Romix TV directly</a> to continue watching.</p>
+    </div>
+
+    <iframe
+      id="viewer"
+      allowfullscreen
+      allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+      title="Romix TV"
+    ></iframe>
+  </div>
+
+  <footer>
+    &copy; 2026 Driva.tv &mdash; Powered by <a href="https://romix.tv" target="_blank">Romix TV</a>
+  </footer>
+
+  <script>
+    const viewer = document.getElementById('viewer');
+    const loading = document.getElementById('loading');
+    const errorBox = document.getElementById('error-box');
+    const loadingText = document.getElementById('loading-text');
+
+    const CORS_PROXIES = [
+      url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+      url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+      url => `https://api.codetabs.com/v1/proxy?quest=${url}`,
+    ];
+
+    function showLoading(msg) {
+      loading.classList.remove('hidden');
+      errorBox.style.display = 'none';
+      loadingText.textContent = msg || 'Loading Romix TV…';
+    }
+
+    function hideLoading() {
+      loading.classList.add('hidden');
+    }
+
+    function showError() {
+      loading.classList.add('hidden');
+      errorBox.style.display = 'flex';
+    }
+
+    function rewriteHtml(html, base) {
+      return html
+        .replace(/<head>/i, `<head><base href="${base}">`)
+        .replace(/(href|src|action)=["'](\/[^"'#][^"']*?)["']/g,
+          (_, attr, path) => `${attr}="${base.replace(/\/$/, '')}${path}"`)
+        .replace(/url\(["']?(\/[^"')]+)["']?\)/g,
+          (_, path) => `url(${base.replace(/\/$/, '')}${path})`);
+    }
+
+    async function tryFetchProxy(targetUrl, proxyFn, index) {
+      const proxyUrl = proxyFn(targetUrl);
+      loadingText.textContent = `Trying method ${index + 1} of ${CORS_PROXIES.length}…`;
+
+      const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(8000) });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+      let html;
+      const ct = resp.headers.get('content-type') || '';
+
+      if (ct.includes('json')) {
+        const json = await resp.json();
+        html = json.contents || json.body || json.data;
+      } else {
+        html = await resp.text();
+      }
+
+      if (!html || html.trim().length < 100) throw new Error('Empty response');
+
+      return html;
+    }
+
+    async function loadPage(targetUrl) {
+      showLoading('Loading Romix TV…');
+      viewer.srcdoc = '';
+
+      for (let i = 0; i < CORS_PROXIES.length; i++) {
+        try {
+          const html = await tryFetchProxy(targetUrl, CORS_PROXIES[i], i);
+          const base = targetUrl.endsWith('/') ? targetUrl : targetUrl + '/';
+          const rewritten = rewriteHtml(html, base);
+
+          viewer.srcdoc = rewritten;
+
+          viewer.onload = () => {
+            hideLoading();
+            viewer.onload = null;
+          };
+
+          setTimeout(hideLoading, 5000);
+          return;
+        } catch (err) {
+          console.warn(`Proxy ${i} failed:`, err.message);
+        }
+      }
+
+      showError();
+    }
+
+    loadPage('https://romix.tv');
+  </script>
+
+</body>
+</html>

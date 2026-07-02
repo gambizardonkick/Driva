@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a78bfa"/>
+      <stop offset="0.55" stop-color="#8b5cf6"/>
+      <stop offset="1" stop-color="#ec4899"/>
+    </linearGradient>
+    <linearGradient id="dfill" x1="0.1" y1="0" x2="0.95" y2="1">
+      <stop offset="0" stop-color="#e9d5ff"/>
+      <stop offset="0.45" stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#ec4899"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#fde047"/>
+    </linearGradient>
+    <radialGradient id="innerGlow" cx="0.5" cy="0.12" r="1">
+      <stop offset="0" stop-color="#8b5cf6" stop-opacity="0.5"/>
+      <stop offset="0.55" stop-color="#8b5cf6" stop-opacity="0.1"/>
+      <stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Shield crest -->
+  <path id="shield" d="M256 28 L448 92 V300 C448 386 368 448 256 486 C144 448 64 386 64 300 V92 Z" fill="#0b0b18"/>
+  <path d="M256 28 L448 92 V300 C448 386 368 448 256 486 C144 448 64 386 64 300 V92 Z" fill="url(#innerGlow)"/>
+  <path d="M256 44 L433 103 V299 C433 377 361 434 256 470 C151 434 79 377 79 299 V103 Z" fill="none" stroke="url(#rim)" stroke-width="14" stroke-linejoin="round"/>
+
+  <!-- D monogram -->
+  <path fill="url(#dfill)" fill-rule="evenodd" d="
+    M 150 140 H 270 A 110 110 0 0 1 270 360 H 150 Z
+    M 196 186 V 314 H 268 A 64 64 0 0 0 268 186 Z"/>
+
+  <!-- Diagonal cut through the D (badge-colored, reads as negative space) -->
+  <line x1="148" y1="376" x2="384" y2="212" stroke="#0b0b18" stroke-width="46"/>
+
+  <!-- Golden climb arrow inside the cut -->
+  <line x1="166" y1="360" x2="338" y2="237" stroke="url(#gold)" stroke-width="21" stroke-linecap="round"/>
+  <path fill="url(#gold)" d="M 398 192 L 366 251 L 332 201 Z"/>
+</svg>
