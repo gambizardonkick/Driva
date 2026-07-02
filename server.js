@@ -84,20 +84,24 @@ async function buildOgImage() {
     { c1: '#e8935e', c2: '#b45309', txt: '#ffffff', stroke: 'rgba(217,122,69,0.45)' },
   ];
 
+  // Fixed zones so wide fonts (DejaVu on Linux) can never collide:
+  // medal 650..713 | name/wager 730..955 | prize 965..1102 (right-aligned)
   const cards = [0, 1, 2].map(i => {
     const u = top3[i];
     const m = medals[i];
     const y = 84 + i * 170;
-    const name = xmlEsc(truncName(u?.displayName, 14));
+    const name = xmlEsc(truncName(u?.displayName, 11));
     const wager = u ? sym + money(u.wagered) : '—';
     const prize = prizes[i] ? sym + money(prizes[i].amount) : '—';
     return `
     <rect x="620" y="${y}" width="510" height="150" rx="24" fill="rgba(255,255,255,0.045)" stroke="${m.stroke}" stroke-width="2"/>
     <circle cx="682" cy="${y + 75}" r="31" fill="url(#medal${i})"/>
-    <text x="682" y="${y + 87}" text-anchor="middle" font-family="Segoe UI, DejaVu Sans, Arial, sans-serif" font-weight="900" font-size="32" fill="${m.txt}">${i + 1}</text>
-    <text x="736" y="${y + 66}" font-family="Segoe UI, DejaVu Sans, Arial, sans-serif" font-weight="800" font-size="29" fill="#ffffff">${name}</text>
-    <text x="736" y="${y + 110}" font-family="Segoe UI, DejaVu Sans, Arial, sans-serif" font-weight="600" font-size="19" fill="#8b91a5">WAGERED <tspan fill="#c9cdd8" font-weight="700">${wager}</tspan></text>
-    <text x="1100" y="${y + 87}" text-anchor="end" font-family="Segoe UI, DejaVu Sans, Arial, sans-serif" font-weight="900" font-size="30" fill="#34d399">${prize}</text>`;
+    <text x="682" y="${y + 86}" text-anchor="middle" font-family="Segoe UI, DejaVu Sans, Arial, sans-serif" font-weight="900" font-size="31" fill="${m.txt}">${i + 1}</text>
+    <text x="732" y="${y + 63}" font-family="Segoe UI, DejaVu Sans, Arial, sans-serif" font-weight="800" font-size="25" fill="#ffffff">${name}</text>
+    <text x="732" y="${y + 105}" font-family="Segoe UI, DejaVu Sans, Arial, sans-serif" font-weight="600" font-size="17" fill="#8b91a5">WAGERED <tspan fill="#c9cdd8" font-weight="700">${wager}</tspan></text>
+    <line x1="938" y1="${y + 28}" x2="938" y2="${y + 122}" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+    <text x="1102" y="${y + 68}" text-anchor="end" font-family="Segoe UI, DejaVu Sans, Arial, sans-serif" font-weight="900" font-size="24" fill="#34d399">${prize}</text>
+    <text x="1102" y="${y + 100}" text-anchor="end" font-family="Segoe UI, DejaVu Sans, Arial, sans-serif" font-weight="700" font-size="13" fill="#8b91a5" letter-spacing="3">PRIZE</text>`;
   }).join('');
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
